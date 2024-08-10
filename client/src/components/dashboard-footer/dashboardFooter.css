@@ -1,0 +1,10 @@
+.navbar-brand{
+    font-size: 14px;
+}
+.bottom-nav{
+    background-color: #F3F3F3;
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    clip-path: inset(0px 0px 0px 10px);
+}

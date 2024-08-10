@@ -1,0 +1,92 @@
+
+.contain-panel {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .left-panel, .right-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .left-panel {
+    background-color: #FF9776;
+  }
+  
+  .login-form {
+    background: white;
+    padding: 40px;
+    width: 450px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  
+  .login-form h2 {
+    margin-bottom: 20px;
+  }
+  
+  .login-form input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .login-button {
+    background-color: #FF6F3F;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .login-button:hover {
+    background-color: #E65A2B;
+  }
+  
+  .login-form p {
+    margin-top: 10px;
+  }
+  
+  .login-form a {
+    color: red;
+  }
+  
+  .right-panel {
+    background-color: white;
+    text-align: center;
+  }
+  
+  .right-panel h2 {
+    margin-bottom: 20px;
+  }
+  
+  .signup-button {
+    background-color: #FF6F3F;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .signup-button:hover {
+    background-color: #E65A2B;
+  }
+  
+  .illustration {
+    margin-top: 20px;
+  }
+  
+  .illustration img {
+    width: 100%;
+    max-width: 400px;
+  }
+  

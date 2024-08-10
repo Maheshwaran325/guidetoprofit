@@ -1,0 +1,78 @@
+.entryitems{
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
+    background-color: transparent;
+}
+.form-container {
+    padding: 30px;
+    border-radius: 10px;
+}
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.form-group input[type="text"] {
+    flex: 1;
+    margin-right: 10px;
+}
+.form-group button {
+    flex-shrink: 0;
+}
+.btn-submit, .btn-next, .btn-clear {
+    margin-right: 10px;
+}
+.nav-tabs{
+    /* background-color: #FBF4ED; */
+    margin-top: 20px;
+    text-decoration: none;
+}
+.nav-link{
+    text-decoration: none !important;
+    color: black;
+    font-size: 13.5px;
+}
+.nav-link:hover{
+    text-decoration: none !important;
+    color: #F16736;
+}
+
+.btn-add{
+    background-color: #F16736;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.btn-add:hover{
+    background-color: #c05a35;
+    color: #fff;
+}
+
+.submit-btn-last{
+    background-color: #0e146d;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 14px;
+    margin-bottom: 50px;
+}
+
+.submit-btn-last:hover{
+    background-color: #4a51ac;
+    color: #fff;
+}
+
+.form-control{
+    border-radius: 20px;
+}
+
+.btnEditDelete{
+    color: #615756;
+    background-color: #E9ECEF;
+    width: 40px;
+}
+
+.btnEditDelete:hover{
+    color: #F16736 ;
+    background-color: #FBF4ED;
+}

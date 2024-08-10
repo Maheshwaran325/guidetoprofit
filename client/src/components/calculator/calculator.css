@@ -1,0 +1,23 @@
+.btn-custom-orange {
+    color: white;
+    background-color: #F16635;
+    border-color: #F16635;
+  }
+  
+  .btn-custom-orange:hover, .btn-custom-orange:focus, .btn-custom-orange:active {
+    color: white;
+    background-color: #d55a2b;
+    border-color: #d55a2b;
+  }
+  
+  .btn-secondary {
+    background-color: #e9ecef;
+    border-color: #e9ecef;
+    color: #495057;
+  }
+  
+  .btn-secondary:hover, .btn-secondary:focus, .btn-secondary:active {
+    background-color: #dee2e6;
+    border-color: #dee2e6;
+    color: #495057;
+  }
