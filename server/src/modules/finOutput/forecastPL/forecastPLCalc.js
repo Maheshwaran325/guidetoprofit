@@ -1,104 +1,77 @@
-// forecastPLCalc.js
-
 const forecastPLCalc = {
-    runCalculations(revenueForecasts, fixedExpenses, salaryCalculations) {
-      // Input validation
-      if (!Array.isArray(revenueForecasts) || !Array.isArray(fixedExpenses) || !Array.isArray(salaryCalculations)) {
-        throw new Error(
-          "Invalid input: revenueForecasts, fixedExpenses, and salaryCalculations must be arrays"
-        );
-      }
-  
-      const months = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
-  
-      const monthlyResults = months.map((month, index) => {
-        // Ensure revenueForecasts[index] exists before accessing its properties
-        const revenue = revenueForecasts[index]
-          ? revenueForecasts[index].price * revenueForecasts[index].units
-          : 0;
-        const cogs = revenueForecasts[index]
-          ? revenueForecasts[index].cost * revenueForecasts[index].units
-          : 0;
-        const grossProfit = revenue - cogs;
-  
-        // Use optional chaining to safely access properties
-        const fixedExpenseTotal =
-          fixedExpenses.reduce(
-            (acc, expense) => acc + parseFloat(expense?.amount || 0),
-            0
-          ) +
-          salaryCalculations.reduce(
-            (acc, salary) => acc + parseFloat(salary?.total_salary || 0),
-            0
-          );
-  
-        const netProfitOrLoss = grossProfit - fixedExpenseTotal;
-  
-        // Return the calculated values for the month
-        return {
-          month, // Include the month in the results
-          revenue,
-          cogs,
-          grossProfit,
-          fixedExpenseTotal,
-          netProfitOrLoss,
-        };
-      });
-  
-      // Calculate totals
-      const totalSales = monthlyResults.reduce(
-        (acc, result) => acc + result.revenue,
-        0
+  runCalculations(revenueForecasts, fixedExpenses, salaryCalculations) {
+    if (!Array.isArray(revenueForecasts) || !Array.isArray(fixedExpenses) || !Array.isArray(salaryCalculations)) {
+      throw new Error(
+        "Invalid input: revenueForecasts, fixedExpenses, and salaryCalculations must be arrays"
       );
-      const totalCOGS = monthlyResults.reduce(
-        (acc, result) => acc + result.cogs,
-        0
-      );
-      const totalGrossProfit = monthlyResults.reduce(
-        (acc, result) => acc + result.grossProfit,
-        0
-      );
-      const totalFixedExpenses = monthlyResults.reduce(
-        (acc, result) => acc + result.fixedExpenseTotal,
-        0
-      );
-      const totalNetProfitOrLoss = monthlyResults.reduce(
-        (acc, result) => acc + result.netProfitOrLoss,
-        0
-      );
-  
-      // Avoid division by zero
-      const grossProfitMargin =
-        totalSales !== 0 ? totalGrossProfit / totalSales : 0;
-      const netProfitMargin =
-        totalSales !== 0 ? totalNetProfitOrLoss / totalSales : 0;
-  
+    }
+
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+
+    const monthlyResults = months.map((month, index) => {
+      // Revenue and COGS calculation (unchanged)
+      const revenue = revenueForecasts[index]
+        ? revenueForecasts[index].price * revenueForecasts[index].units
+        : 0;
+      const cogs = revenueForecasts[index]
+        ? revenueForecasts[index].cost * revenueForecasts[index].units
+        : 0;
+      const grossProfit = revenue - cogs;
+
+      // Calculate fixed expenses for the month
+      const fixedExpenseTotal = fixedExpenses.reduce((acc, expense) => {
+        if (expense.months.includes(month)) {
+          return acc + parseFloat(expense.amount || 0);
+        }
+        return acc;
+      }, 0);
+      // Calculate salary expenses for the month
+      const salaryTotal = salaryCalculations[0]?.monthly_totals?.[month] || 0;
+
+      // Total expenses for the month (fixed expenses + salaries)
+      const totalExpenses = fixedExpenseTotal + salaryTotal;
+      const netProfitOrLoss = grossProfit - totalExpenses;
+
       return {
-        monthlyResults,
-        totals: {
-          totalSales,
-          totalCOGS,
-          totalGrossProfit,
-          totalFixedExpenses,
-          totalNetProfitOrLoss,
-          grossProfitMargin,
-          netProfitMargin,
-        },
+        month,
+        revenue,
+        cogs,
+        grossProfit,
+        fixedExpenseTotal,
+        salaryTotal,
+        totalExpenses,
+        netProfitOrLoss,
       };
-    },
-  };
-  
-  export default forecastPLCalc;
+    });
+
+    // Calculate totals
+    const totals = monthlyResults.reduce((acc, result) => ({
+      totalSales: acc.totalSales + result.revenue,
+      totalCOGS: acc.totalCOGS + result.cogs,
+      totalGrossProfit: acc.totalGrossProfit + result.grossProfit,
+      totalFixedExpenses: acc.totalFixedExpenses + result.fixedExpenseTotal,
+      totalSalaries: acc.totalSalaries + result.salaryTotal,
+      totalExpenses: acc.totalExpenses + result.totalExpenses,
+      totalNetProfitOrLoss: acc.totalNetProfitOrLoss + result.netProfitOrLoss,
+    }), {
+      totalSales: 0,
+      totalCOGS: 0,
+      totalGrossProfit: 0,
+      totalFixedExpenses: 0,
+      totalSalaries: 0,
+      totalExpenses: 0,
+      totalNetProfitOrLoss: 0,
+    });
+
+    // Calculate margins
+    totals.grossProfitMargin = totals.totalSales !== 0 ? totals.totalGrossProfit / totals.totalSales : 0;
+    totals.netProfitMargin = totals.totalSales !== 0 ? totals.totalNetProfitOrLoss / totals.totalSales : 0;
+
+    return { monthlyResults, totals };
+  },
+};
+
+export default forecastPLCalc;

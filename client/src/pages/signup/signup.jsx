@@ -1,116 +1,179 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState } from 'react';
 import './signup.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
-import { supabase } from '../../auth/supabaseClient';
-import { ProjectContext } from '../../ProjectContext';
 import signupimg from '../../components/assets/images/sign-up.png';
 import logo from '../../components/assets/images/guide2solve.png';
+import { supabase } from '../../auth/supabaseClient';
+import { Eye, EyeOff } from 'lucide-react';
 
 function Signup() {
-  const { setProjectId } = useContext(ProjectContext);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [signupStage, setSignupStage] = useState('initial');
   const navigate = useNavigate();
   const { signUp } = useAuth();
 
-  useEffect(() => {
-    setError(null); // Reset error when any input changes
-  }, [name, email, password]);
-
-  const handleSubmit = async (e) => {
+  const handleInitialSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      setLoading(false);
+      return;
+    }
+
     try {
-      // Sign up the user
-      const { data, error } = await signUp({ email, password });
+      const { data, error } = await signUp({ email, password, name });
+      
       if (error) throw error;
-  
-      if (data && data.user) {
-        // Update user's display name
-        const { error: updateError } = await supabase.auth.updateUser({
-          data: { full_name: name }
-        });
-  
-        if (updateError) throw updateError;
-  
-        try {
-          // Attempt to create a new project for the user
-          const { data: projectData, error: projectError } = await supabase
-            .from('projects')
-            .insert({ auth_user_id: data.user.id })
-            .single();
-  
-          if (projectError) {
-            console.error('Error creating project:', projectError);
-          } else {
-            console.log('Project created successfully:', projectData);
-            // Store projectId in state
-            setProjectId(projectData.id);
-          }
-        } catch (projectError) {
-          console.error('Error in project creation:', projectError);
-          // Continue with signup process even if project creation fails
-        }
-        
-        alert('Signup successful!');
-        navigate('/login');
-      } else {
-        throw new Error('User data not available after signup');
+
+      if (data) {
+        setSignupStage('otp');
       }
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
-    return (
-        <div className="App">
-          <div className="contain-panel">
-            <div className="left-panel">
-              <form onSubmit={handleSubmit} className="signup-form">
-                <h5 className='text-center'>Signup</h5>
-                {error && <p className="error">{error}</p>}
-                <br/>
-                <input
-          type="text"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />                <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />                
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />                <br/>
-                <button type="submit" className="signup-button">Sign Up</button>
-                <p>Already Registered? <Link to="/login">Login</Link></p>
-              </form>
-            </div>
-            <div className="right-panel">
-              <img src={logo} alt="logo" style={{width:"300px", paddingBottom:"30px"}} />
 
-              {/* <h2></h2> */}
-              <p>Welcome! Already registered? Let's get started!</p>
-              
-              <Link to="/login"> <button className="login-button">Login</button> </Link>
-              
-              <div className="illustration">
-                <img src={signupimg} alt="Illustration" />
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        email,
+        token: otp,
+        type: 'signup'
+      });
+
+      if (error) throw error;
+
+      console.log('OTP verification successful', data);
+      alert('Email verified successfully!');
+      
+      navigate('/login');
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleShowConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  return (
+    <div className="App">
+      <div className="contain-panel">
+        <div className="left-panel">
+          {signupStage === 'initial' ? (
+            <form onSubmit={handleInitialSubmit} className="signup-form">
+              <h5 className='text-center'>Signup</h5>
+              {error && <p className="error">{error}</p>}
+              <br/>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <div className="password-input-container">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password (min 6 characters)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+                <button type="button" onClick={toggleShowPassword} className="show-password-button">
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
-            </div>
+              <div className="password-input-container">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+                <button type="button" onClick={toggleShowConfirmPassword} className="show-password-button">
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              <br/>
+              <button type="submit" className="signup-button" disabled={loading}>
+                {loading ? 'Signing Up...' : 'Sign Up'}
+              </button>
+              <p>Already Registered? <Link to="/login">Login</Link></p>
+            </form>
+          ) : (
+            <form onSubmit={handleOtpSubmit} className="signup-form">
+              <h5 className='text-center'>Verify Email</h5>
+              {error && <p className="error">{error}</p>}
+              <br/>
+              <p>Enter the OTP sent to {email}</p>
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+              <br/>
+              <button type="submit" className="signup-button" disabled={loading}>
+                {loading ? 'Verifying...' : 'Verify OTP'}
+              </button>
+            </form>
+          )}
+        </div>
+        <div className="right-panel">
+          <img src={logo} alt="logo" style={{width:"300px", paddingBottom:"30px"}} />
+          <p>Welcome! Already registered? Let's get started!</p>
+          <Link to="/login"> <button className="login-button">Login</button> </Link>
+          <div className="illustration">
+            <img src={signupimg} alt="Illustration" />
           </div>
         </div>
-      );
-    }
+      </div>
+    </div>
+  );
+}
 
 export default Signup;

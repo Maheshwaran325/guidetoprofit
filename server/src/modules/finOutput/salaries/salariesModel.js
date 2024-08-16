@@ -17,14 +17,14 @@ const salariesModel = {
   },
 
   async saveCalculations(projectId, calculations) {
-    // Use upsert to avoid duplicates
     const { data, error } = await supabase
       .from('salary_calculations')
       .upsert({
         project_id: projectId,
-        total_salary: calculations.total_salary,
+        monthly_totals: calculations.monthly_totals,
+        grand_total: calculations.grand_total,
         calculated_at: new Date().toISOString()
-      }, { onConflict: 'project_id' })  // Ensure project_id is unique
+      }, { onConflict: 'project_id' })
       .select();
   
     if (error) {

@@ -5,7 +5,20 @@ export const ProjectContext = createContext();
 
 export function ProjectProvider({ children }) {
   const [projectId, setProjectId] = useState(null);
+  const createProjectForUser = async (userId) => {
+    try {
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .insert({ auth_user_id: userId })
+        .single();
 
+      if (projectError) throw projectError;
+
+      setProjectId(projectData.id);
+    } catch (error) {
+      console.error('Error creating project:', error);
+    }
+  };
   useEffect(() => {
     const fetchProjectId = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -19,7 +32,8 @@ export function ProjectProvider({ children }) {
         if (data) {
           setProjectId(data.id);
         } else if (error) {
-          console.error('Error fetching project:', error);
+          // If no project exists, create one
+          await createProjectForUser(user.id);
         }
       }
     };

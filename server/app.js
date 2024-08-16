@@ -14,6 +14,8 @@ import forecastPLRoutes from './src/modules/finOutput/forecastPL/forecastPLRoute
 import breakEvenRoutes from './src/modules/finOutput/breakEvenAnalysis/breakEvenRoutes.js';
 import fundingOutRoutes from './src/modules/finOutput/funding/fundingRoutes.js';
 import authRoutes from './src/modules/auth/authRoutes.js';
+import financialDashboardRoutes  from './src/modules/dashboard/dashboardRoutes.js';
+import finbotRoutes from './src/modules/finbot/finbotRoutes.js';
 import projectRoutes from './src/utils/initialsubmitRoutes.js';
 
 dotenv.config();
@@ -38,9 +40,14 @@ app.use('/payroll', payrollRoutes);
  app.use('/funding-out', fundingOutRoutes);
  app.use('/auth', authRoutes);
 
+ //Dashboard Routes
+ app.use('/financial-dashboard', financialDashboardRoutes);
+
  //Initial Submit Check
  app.use('/project', projectRoutes);
 
+ // Chatbot Routes
+ app.use('/api', finbotRoutes); 
 
  // Add error handling middleware
 app.use((err, req, res, next) => {

@@ -1,14 +1,24 @@
 const calculateSalaries = (payrolls, selectedMonths) => {
-  // Filter payrolls based on the selected months
-  const filteredPayrolls = payrolls.filter(payroll =>
-    payroll.months.some(month => selectedMonths.includes(month))
-  );
+  const monthlyTotals = {};
+  let grandTotal = 0;
 
-  // Sum of salaries
-  const total_salary = filteredPayrolls.reduce((sum, payroll) => sum + parseFloat(payroll.salary), 0);
+  selectedMonths.forEach(month => {
+    monthlyTotals[month] = 0;
+  });
+
+  payrolls.forEach(payroll => {
+    const salary = parseFloat(payroll.salary);
+    payroll.months.forEach(month => {
+      if (selectedMonths.includes(month)) {
+        monthlyTotals[month] += salary;
+        grandTotal += salary;
+      }
+    });
+  });
 
   return {
-    total_salary,
+    monthly_totals: monthlyTotals,
+    grand_total: grandTotal,
   };
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback,useMemo } from 'react';
 import './entryitems.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useProject } from '../../ProjectContext';  
@@ -26,10 +26,11 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
   const [currentForecast, setCurrentForecast] = useState(null);
   const [selectedMonths, setSelectedMonths] = useState([]);
 
-  const months = [
+  const months = useMemo(() => [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
-  ];
+  ], []);
+
 
   const fetchRevenueForecasts = useCallback(async () => {
     if (!projectId) {
@@ -40,15 +41,19 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
     try {
       const response = await authenticatedRequest(`http://localhost:8000/operations/data/${projectId}`, 'GET');
       if (response.data && Array.isArray(response.data.revenueForecasts)) {
-        setMonthlyData(response.data.revenueForecasts);
-        onDataUpdate(response.data.revenueForecasts);
+        // Sort the fetched data based on the months array
+        const sortedRevenueForecasts = response.data.revenueForecasts.sort(
+          (a, b) => months.indexOf(a.month) - months.indexOf(b.month)
+        );
+        setMonthlyData(sortedRevenueForecasts);
+        onDataUpdate(sortedRevenueForecasts);
       }
     } catch (err) {
       setError(`Failed to fetch revenue forecasts: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
-  }, [projectId, onDataUpdate]);
+  }, [projectId, onDataUpdate, months]);
 
   useEffect(() => {
     fetchRevenueForecasts();
@@ -61,15 +66,25 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
   const formatNumber = (num) => {
     if (num === '') return '';
     const parts = num.toString().split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join('.');
-  };
+    // Convert the integer part into Indian number format
+    let integerPart = parts[0];
+    let lastThreeDigits = integerPart.slice(-3);
+    let otherDigits = integerPart.slice(0, -3);
+    if (otherDigits !== '') {
+        lastThreeDigits = ',' + lastThreeDigits;
+    }
+    const formattedIntegerPart = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThreeDigits;
+    // Combine with decimal part if it exists
+    return parts.length > 1 ? formattedIntegerPart + '.' + parts[1] : formattedIntegerPart;
+    };
+
+
 
   const handleShowModal = (forecast = null) => {
-    setCurrentForecast(forecast || { months: [], units: '', price: '', cost: '' });
-    setSelectedMonths(forecast ? forecast.months : []);
-    setShowModal(true);
     setError('');
+    setCurrentForecast(forecast || { months: [], units: '', price: '', cost: '' });
+    setSelectedMonths(forecast && forecast.months ? [...forecast.months] : []);
+    setShowModal(true);
   };
 
   const handleCloseModal = () => {
@@ -80,22 +95,31 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
   };
 
   const handleMonthChange = (month) => {
-    setSelectedMonths(prev => 
-      prev.includes(month) ? prev.filter(m => m !== month) : [...prev, month]
-    );
+    setError(''); 
+    setSelectedMonths(prev => {
+      const currentSelection = Array.isArray(prev) ? prev : [];
+      const newSelection = currentSelection.includes(month) 
+        ? currentSelection.filter(m => m !== month) 
+        : [...currentSelection, month];
+      
+      // Sort the new selection based on the months array order
+      return newSelection.sort((a, b) => months.indexOf(a) - months.indexOf(b));
+    });
   };
 
   const handleInputChange = (field, value) => {
+    setError('');  
     setCurrentForecast(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = async () => {
+   const handleSave = async () => {
     if (selectedMonths.length === 0 || !currentForecast.units || !currentForecast.price || !currentForecast.cost) {
-      setError('All fields must be filled out and at least one month must be selected.');
+      setError('At least one month must be selected and all fields must be filled.');
       return;
     }
   
     try {
+      // selectedMonths is already sorted due to the change in handleMonthChange
       const forecastsToSave = selectedMonths.map(month => ({
         month,
         units: currentForecast.units,
@@ -110,7 +134,11 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
       );
   
       if (response.data && Array.isArray(response.data.revenueForecasts)) {
-        setMonthlyData(response.data.revenueForecasts);
+        // Sort the received data based on the months array
+        const sortedRevenueForecasts = response.data.revenueForecasts.sort(
+          (a, b) => months.indexOf(a.month) - months.indexOf(b.month)
+        );
+        setMonthlyData(sortedRevenueForecasts);
         handleCloseModal();
         await fetchRevenueForecasts();
       } else {
@@ -146,7 +174,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
     return <div>Loading revenue forecasts...</div>;
   }
 
-  if (error) {
+  if (error && !showModal) {
     return <div>Error: {error}</div>;
   }
 
@@ -248,20 +276,17 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
               />
             </Form.Group>
           </Form>
-          {error && <div className="text-danger">{error}</div>}
+          {error && <p className="error-message" style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-          {currentForecast && currentForecast.id ? 'Update' : 'Add'}
-          </Button>
+          <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+          <Button variant="primary" onClick={handleSave}>Save</Button>
         </Modal.Footer>
       </Modal>
     </div>
   );
 };
+
 
 
 // =============================================================================
@@ -288,7 +313,7 @@ function Entryitems() {
   const [activeTab, setActiveTab] = useState('nav-startup');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
+  const [dataModified, setDataModified] = useState(false);
   // State for Employee Payroll Modal
   const [employeePayrolls, setEmployeePayrolls] = useState([]);
   const [showModalPayroll, setShowModalPayroll] = useState(false);
@@ -313,19 +338,70 @@ function Entryitems() {
   // =============================================================================
   // Helper Functions
   // =============================================================================
-
+  const validateData = useCallback(() => {
+    const sections = [
+      { data: startupCosts, name: 'Startup Costs' },
+      { data: startupCapital, name: 'Startup Capital' },
+      { data: capitalWorkProgress, name: 'Capital Work in Progress' },
+      { data: startingOperations, name: 'Starting Operations' },
+      { data: fixedExpenses, name: 'Fixed Expenses' },
+      { data: assets, name: 'Assets' },
+      { data: liabilities, name: 'Liabilities' },
+      { data: capitalCosts, name: 'Capital Costs' },
+      { data: cashFlow, name: 'Cash Flow' },
+      {
+        data: revenueForecasts,
+        name: 'Revenue Forecasts',
+        validate: item => item.month && item.units && item.price && item.cost,
+      },
+      { data: variableCosts, name: 'Variable Costs' },
+      {
+        data: employeePayrolls,
+        name: 'Employee Payrolls',
+        validate: item => item.designation && item.salary && item.months.length > 0,
+      },
+    ];
+    
+    for (const section of sections) {
+      let validItems;
+      if (section.validate) {
+        // Use custom validation function if provided
+        validItems = section.data.filter(section.validate);
+      } else {
+        // Default validation for description and amount
+        validItems = section.data.filter(item => item.description && item.amount);
+      }
+  
+      if (validItems.length === 0) {
+        return `Please fill at least one item in ${section.name}.`;
+      }
+    }
+    
+        return null; // Data is valid
+      }, [startupCosts, startupCapital, capitalWorkProgress, startingOperations, fixedExpenses, assets, liabilities, capitalCosts, cashFlow, revenueForecasts, variableCosts, employeePayrolls]);
   // Add a new item to a specific input section
   const handleAddItem = (setFunction) => {
     setFunction(prevItems => [...prevItems, { description: '', amount: '' }]);
+    setDataModified(true);
   };
 
   // Format number with commas
   const formatNumber = (num) => {
     if (num === '') return '';
     const parts = num.toString().split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join('.');
-  };
+    // Convert the integer part into Indian number format
+    let integerPart = parts[0];
+    let lastThreeDigits = integerPart.slice(-3);
+    let otherDigits = integerPart.slice(0, -3);
+    if (otherDigits !== '') {
+        lastThreeDigits = ',' + lastThreeDigits;
+    }
+    const formattedIntegerPart = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThreeDigits;
+    // Combine with decimal part if it exists
+    return parts.length > 1 ? formattedIntegerPart + '.' + parts[1] : formattedIntegerPart;
+};
+
+
 
   // Parse number from formatted string
   const parseNumber = (str) => {
@@ -345,6 +421,7 @@ function Entryitems() {
       }
       return newItems;
     });
+    setDataModified(true); 
   };
 
   // Options for input datalists
@@ -487,7 +564,7 @@ function Entryitems() {
               type="text"
               className="form-control"
               placeholder="₹"
-              value={formatNumber(item.amount)}
+              value={item.amount !== null ? formatNumber(item.amount) : ''} 
               onChange={(e) => handleInputChange(index, setFunction, 'amount', e.target.value)}
             />
           </div>
@@ -855,12 +932,28 @@ useEffect(() => {
   }
 }, [projectId, checkInitialSubmitStatus, initialSubmitted]);
 
+// ... validateData function ...
 
+useEffect(() => {
+  if (dataModified) {
+    const validationError = validateData();
+    if (validationError) {
+      setError(validationError);
+    } else {
+      setError(null);
+    }
+    setDataModified(false);
+  }
+}, [dataModified, validateData]);
 
   const handleInitialSubmit = async () => {
+    setError(null); 
+    const validationError = validateData();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setIsLoading(true);
-    setError(null);
-  
     try {
       if (!projectId) {
         throw new Error('Project ID is not available. Please try again later.');
@@ -1485,105 +1578,122 @@ const handleSaveEmployeePayroll = async () => {
 
         {/* Funding Modal */}
         <Modal show={showModal} onHide={handleModalClose}>
-          <Modal.Header closeButton>
-            <Modal.Title>
-              {editingIndex !== null ? 'Edit' : 'Add'}{' '}
-              {modalType === 'fixedExpense' ? 'Monthly Expense' : 'Capital Cost'}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter description"
-                  value={modalDescription}
-                  onChange={(e) => handleModalInputChange('description', e.target.value)}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Amount</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter amount"
-                  value={modalAmount}
-                  onChange={(e) => handleModalInputChange('amount', e.target.value)}
-                />
-              </Form.Group>
+  <Modal.Header closeButton>
+    <Modal.Title>
+      {editingIndex !== null ? 'Edit' : 'Add'}{' '}
+      {modalType === 'fixedExpense' ? 'Monthly Expense' : 'Capital Cost'}
+    </Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group className="mb-3">
+        <Form.Label>Description</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter description"
+          value={modalDescription}
+          onChange={(e) => {
+            setError(''); // Clear error when input changes
+            handleModalInputChange('description', e.target.value);
+          }}
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Amount</Form.Label>
+        <Form.Control
+          type="text"
+          placeholder="Enter amount"
+          value={modalAmount}
+          onChange={(e) => {
+            setError(''); // Clear error when input changes
+            handleModalInputChange('amount', e.target.value);
+          }}
+        />
+      </Form.Group>
 
-              {modalType === 'fixedExpense' && (
-                <Form.Group>
-                  <Form.Label>Select Months:</Form.Label>
-                  <Form.Check
-                    type="checkbox"
-                    id="select-all-fixed-expenses"
-                    label="Select All"
-                    checked={selectedMonths.length === months.length}
-                    onChange={() => {
-                      setSelectedMonths(selectedMonths.length === months.length ? [] : months);
-                    }}
-                  />
-                  <div className="d-flex flex-wrap">
-                    {months.map((month) => (
-                      <Form.Check
-                        key={month}
-                        type="checkbox"
-                        id={`month-${month}`}
-                        label={month}
-                        checked={selectedMonths.includes(month)}
-                        onChange={() => handleMonthChange(month)}
-                        className="me-3 mb-2"
-                      />
-                    ))}
-                  </div>
-                </Form.Group>
-              )}
-              {modalType === 'capitalCost' && (
-                <Form.Group>
-                  <Form.Label>Select Years:</Form.Label>
-                  <Form.Check
-                    type="checkbox"
-                    id="select-all-capital-costs"
-                    label="Select All"
-                    checked={selectedYears.length === years.length}
-                    onChange={() => {
-                      setSelectedYears(selectedYears.length === years.length ? [] : years);
-                    }}
-                  />
-                  <div className="d-flex flex-wrap">
-                    {years.map(year => (
-                      <Form.Check
-                        key={year}
-                        type="checkbox"
-                        id={`year-${year}`}
-                        label={year}
-                        checked={selectedYears.includes(year)}
-                        onChange={() => handleYearChange(year)}
-                        className="me-3 mb-2"
-                      />
-                    ))}
-                  </div>
-                </Form.Group>
-              )}
-            </Form>
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleModalClose}>
-              Close
-            </Button>
-            <Button
-              variant="primary"
-              onClick={
-                modalType === 'fixedExpense'
-                  ? handleSaveFixedExpense
-                  : handleSaveCapitalCost
-              }
-            >
-              {editingIndex !== null ? 'Update' : 'Add'}
-            </Button>
-          </Modal.Footer>
-        </Modal>
+      {modalType === 'fixedExpense' && (
+        <Form.Group>
+          <Form.Label>Select Months:</Form.Label>
+          <Form.Check
+            type="checkbox"
+            id="select-all-fixed-expenses"
+            label="Select All"
+            checked={selectedMonths.length === months.length}
+            onChange={() => {
+              setError(''); // Clear error when input changes
+              setSelectedMonths(selectedMonths.length === months.length ? [] : months);
+            }}
+          />
+          <div className="d-flex flex-wrap">
+            {months.map((month) => (
+              <Form.Check
+                key={month}
+                type="checkbox"
+                id={`month-${month}`}
+                label={month}
+                checked={selectedMonths.includes(month)}
+                onChange={() => {
+                  setError(''); // Clear error when input changes
+                  handleMonthChange(month);
+                }}
+                className="me-3 mb-2"
+              />
+            ))}
+          </div>
+        </Form.Group>
+      )}
+      {modalType === 'capitalCost' && (
+        <Form.Group>
+          <Form.Label>Select Years:</Form.Label>
+          <Form.Check
+            type="checkbox"
+            id="select-all-capital-costs"
+            label="Select All"
+            checked={selectedYears.length === years.length}
+            onChange={() => {
+              setError(''); // Clear error when input changes
+              setSelectedYears(selectedYears.length === years.length ? [] : years);
+            }}
+          />
+          <div className="d-flex flex-wrap">
+            {years.map(year => (
+              <Form.Check
+                key={year}
+                type="checkbox"
+                id={`year-${year}`}
+                label={year}
+                checked={selectedYears.includes(year)}
+                onChange={() => {
+                  setError(''); // Clear error when input changes
+                  handleYearChange(year);
+                }}
+                className="me-3 mb-2"
+              />
+            ))}
+          </div>
+        </Form.Group>
+      )}
+    </Form>
+
+    {error && <p className="error-message" style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleModalClose}>
+      Close
+    </Button>
+    <Button
+      variant="primary"
+      onClick={
+        modalType === 'fixedExpense'
+          ? handleSaveFixedExpense
+          : handleSaveCapitalCost
+      }
+    >
+      {editingIndex !== null ? 'Update' : 'Add'}
+    </Button>
+  </Modal.Footer>
+</Modal>
+
 
         {/* Operations & Finance Tab */}
         <div className={`tab-pane fade ${activeTab === 'nav-operations' ? 'show active' : ''}`} id="nav-operations" role="tabpanel" aria-labelledby="nav-operations-tab">

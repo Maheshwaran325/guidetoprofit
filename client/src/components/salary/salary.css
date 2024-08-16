@@ -1,0 +1,29 @@
+/* Existing styles */
+
+/* New styles for the salary table */
+.salary-table-container {
+    overflow-x: auto;
+  }
+  
+  .salary-table {
+    min-width: 1200px;
+  }
+  
+  /* You may want to add some additional styles for better appearance */
+  /* .salary-table th,
+  .salary-table td {
+    white-space: nowrap;
+    padding: 0.5rem;
+  }
+  
+  .salary-table th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  } */
+  
+  /* Add some hover effect for better row distinction */
+  /* .salary-table tbody tr:hover {
+    background-color: #f1f3f5;
+  } */

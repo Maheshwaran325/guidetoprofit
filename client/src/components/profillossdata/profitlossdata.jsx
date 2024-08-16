@@ -30,8 +30,8 @@ const ProfitLossTable = () => {
         }
         setProfitLossData(response.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setError(error.message);
+        // console.error('Error fetching data:', error);
+        // setError(error.message);
       } finally {
         setIsLoading(false);
       }
@@ -43,7 +43,7 @@ const ProfitLossTable = () => {
     return (
       <div className="container mt-5">
         <div className="alert alert-info" role="alert">
-          No ProjectID data available. Please submit the sales forecast form first.
+        No project data available.
         </div>
       </div>
     );
@@ -71,7 +71,7 @@ const ProfitLossTable = () => {
     return (
       <div className="container mt-5">
         <div className="alert alert-warning" role="alert">
-          No data available. Please ensure you've submitted the sales forecast form.
+        No project data available. Please submit the form first.
         </div>
       </div>
     );
@@ -100,12 +100,16 @@ const ProfitLossTable = () => {
 
   const grossProfit = monthlyResults.map(result => result.grossProfit || 0);
   const netProfit = monthlyResults.map(result => result.netProfitOrLoss || 0);
-  const totalExpenses = monthlyResults.map(result => result.fixedExpenseTotal || 0);
+  const totalExpenses = monthlyResults.map(result => result.totalExpenses || 0);
   const revenue = monthlyResults.map(result => result.revenue || 0);
 
   // Calculate Net Profit Margin
   const netProfitMargin = monthlyResults.map(result => 
     result.revenue ? (result.netProfitOrLoss / result.revenue * 100).toFixed(2) : 0
+  );
+  // Calculate Gross Profit Margin
+  const grossProfitMargin = monthlyResults.map(result => 
+    result.revenue ? (result.grossProfit / result.revenue * 100).toFixed(2) : 0
   );
 
   const profitLossYearData = {
@@ -158,37 +162,44 @@ const ProfitLossTable = () => {
                 <tr>
                   <th>Sales</th>
                   {revenue.map((rev, index) => (
-                    <td key={index}>{rev.toLocaleString()}</td>
+                    <td key={index}>₹{rev.toLocaleString('en-IN')}</td>
                   ))}
-                  <td>{totals.total_sales.toLocaleString()}</td>
+                  <td>₹{totals.total_sales.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>COGS</th>
                   {monthlyResults.map((result, index) => (
-                    <td key={index}>{result.cogs.toLocaleString()}</td>
+                    <td key={index}>₹{result.cogs.toLocaleString('en-IN')}</td>
                   ))}
-                  <td>{totals.total_cogs.toLocaleString()}</td>
+                  <td>₹{totals.total_cogs.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>Gross Profit</th>
                   {grossProfit.map((profit, index) => (
-                    <td key={index}>{profit.toLocaleString()}</td>
+                    <td key={index}>{profit.toLocaleString('en-IN')}</td>
                   ))}
-                  <td>{totals.total_gross_profit.toLocaleString()}</td>
+                  <td>{totals.total_gross_profit.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>Fixed Expenses</th>
                   {totalExpenses.map((expense, index) => (
-                    <td key={index}>{expense.toLocaleString()}</td>
+                    <td key={index}>₹{expense.toLocaleString('en-IN')}</td>
                   ))}
-                  <td>{totals.total_fixed_expenses.toLocaleString()}</td>
+                  <td>₹{totals.total_fixed_expenses.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>Net Profit/Loss</th>
                   {netProfit.map((profit, index) => (
-                    <td key={index}>{profit.toLocaleString()}</td>
+                    <td key={index}>{profit.toLocaleString('en-IN')}</td>
                   ))}
-                  <td>{totals.total_net_profit_or_loss.toLocaleString()}</td>
+                  <td>{totals.total_net_profit_or_loss.toLocaleString('en-IN')}</td>
+                </tr>
+                <tr>
+                  <th>Gross Profit Margin (%)</th>
+                  {grossProfitMargin.map((margin, index) => (
+                    <td key={index}>{margin}%</td>
+                  ))}
+                  <td>{(totals.gross_profit_margin * 100).toFixed(2)}%</td>
                 </tr>
                 <tr>
                   <th>Net Profit Margin (%)</th>

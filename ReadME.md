@@ -165,3 +165,93 @@ sales_forecast_calculations
 startup_calculations
 sessions
 users
+
+
+Table Schema:
+[
+      {
+    "table_name": "chats",
+    "columns": "id (uuid), message_date (date), message (text), response (text), created_at (timestamp with time zone), user_id (uuid)"
+  },
+  {
+    "table_name": "projects",
+    "columns": "created_at (timestamp without time zone), id (uuid), initial_submit_complete (boolean), auth_user_id (uuid), updated_at (timestamp without time zone), status (character varying)"
+  },
+  {
+    "table_name": "assets",
+    "columns": "created_at (timestamp without time zone), updated_at (timestamp without time zone), amount (numeric), project_id (uuid), id (integer), description (text)"
+  },
+  {
+    "table_name": "capital_costs",
+    "columns": "description (text), years (ARRAY), amount (numeric), updated_at (timestamp without time zone), created_at (timestamp without time zone), id (integer), project_id (uuid)"
+  },
+  {
+    "table_name": "capital_work_progress",
+    "columns": "created_at (timestamp without time zone), updated_at (timestamp without time zone), description (text), id (integer), amount (numeric), project_id (uuid)"
+  },
+  {
+    "table_name": "cash_flow",
+    "columns": "description (text), updated_at (timestamp without time zone), amount (numeric), project_id (uuid), id (integer), created_at (timestamp without time zone)"
+  },
+  {
+    "table_name": "employee_payrolls",
+    "columns": "designation (text), months (ARRAY), updated_at (timestamp without time zone), created_at (timestamp without time zone), salary (numeric), project_id (uuid), id (integer)"
+  },
+  {
+    "table_name": "fixed_expenses",
+    "columns": "description (text), updated_at (timestamp without time zone), created_at (timestamp without time zone), amount (numeric), project_id (uuid), id (integer), months (ARRAY)"
+  },
+  {
+    "table_name": "liabilities",
+    "columns": "created_at (timestamp without time zone), project_id (uuid), id (integer), description (text), amount (numeric), updated_at (timestamp without time zone)"
+  },
+  {
+    "table_name": "revenue_forecasts",
+    "columns": "created_at (timestamp without time zone), month (text), updated_at (timestamp without time zone), id (integer), project_id (uuid), units (numeric), price (numeric), cost (numeric)"
+  },
+  {
+    "table_name": "starting_operations",
+    "columns": "updated_at (timestamp without time zone), created_at (timestamp without time zone), project_id (uuid), amount (numeric), id (integer), description (text)"
+  },
+  {
+    "table_name": "startup_capital",
+    "columns": "description (text), updated_at (timestamp without time zone), id (integer), amount (numeric), project_id (uuid), created_at (timestamp without time zone)"
+  },
+  {
+    "table_name": "startup_costs",
+    "columns": "project_id (uuid), description (text), id (integer), amount (numeric), created_at (timestamp without time zone), updated_at (timestamp without time zone)"
+  },
+  {
+    "table_name": "variable_costs",
+    "columns": "created_at (timestamp without time zone), updated_at (timestamp without time zone), description (text), amount (numeric), project_id (uuid), id (integer)"
+  },
+  
+    {
+    "table_name": "break_even_calculations",
+    "columns": "gross_margin_percent_of_sales (numeric), yearly_breakeven_amount (numeric), monthly_breakeven_amount (numeric), calculated_at (timestamp without time zone), total_sales_for_the_year (numeric), id (integer), project_id (uuid), average_sales_price_per_unit (numeric), gross_profit_for_the_year (numeric), units_to_break_even (numeric), average_cost_per_unit (numeric), sales_required_to_break_even (numeric), gross_profit_margin (numeric), fixed_costs_for_the_year (numeric), contribution_margin (numeric), gross_margin_total_sales (numeric), operating_expenses (numeric)"
+  },
+  {
+    "table_name": "cogs_calculations",
+    "columns": "total_variable_costs (numeric), project_id (uuid), id (integer), calculated_at (timestamp without time zone)"
+  },
+  {
+    "table_name": "forecast_pl_calculations",
+    "columns": "project_id (uuid), id (integer), monthly_results (jsonb), total_sales (numeric), total_cogs (numeric), total_gross_profit (numeric), total_fixed_expenses (numeric), total_net_profit_or_loss (numeric), gross_profit_margin (numeric), net_profit_margin (numeric), calculated_at (timestamp without time zone)"
+  },
+  {
+    "table_name": "funding_calculations",
+    "columns": "total_revenue (numeric), total_funding_required (numeric), calculated_at (timestamp without time zone), yearly_results (jsonb), average_ebitda_margin (numeric), project_id (uuid), average_gross_profit_margin (numeric), id (integer), total_earnings (numeric), total_gross_profit (numeric)"
+  },
+  {
+    "table_name": "salary_calculations",
+    "columns": "monthly_totals (jsonb), id (integer), project_id (uuid), calculated_at (timestamp without time zone), grand_total (numeric)"
+  },
+  {
+    "table_name": "sales_forecast_calculations",
+    "columns": "id (integer), project_id (uuid), total_units_sold (numeric), total_revenue (numeric), total_cogs (numeric), total_priceperunit (numeric), total_costperunit (numeric), calculated_at (timestamp without time zone)"
+  },
+  {
+    "table_name": "startup_calculations",
+    "columns": "id (integer), project_id (uuid), total_startup_costs (numeric), calculated_at (timestamp without time zone), starting_operations_budgeted (numeric), total_startup_capital (numeric), capital_work_progress_amount (numeric)"
+  }
+]

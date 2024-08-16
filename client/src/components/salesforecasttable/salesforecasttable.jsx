@@ -24,8 +24,8 @@ const SalesForecastTable = () => {
       const response = await authenticatedRequest(`http://localhost:8000/sales-forecast/data/${projectId}`);
       setForecastData(response.data);
     } catch (error) {
-      console.error('Error fetching forecast data:', error);
-      setError('Failed to fetch data. Please try again.');
+      // console.error('Error fetching forecast data:', error);
+      // setError('Failed to fetch data. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +35,7 @@ const SalesForecastTable = () => {
     fetchData();
   }, [fetchData]);
 
-  const monthNames = useMemo(() => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], []);
+  const monthNames = useMemo(() => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], []);
 
   const chartData = useMemo(() => {
     if (!forecastData) return { labels: [], datasets: [] };
@@ -65,7 +65,7 @@ const SalesForecastTable = () => {
     return (
       <div className="container mt-5">
         <div className="alert alert-info" role="alert">
-          No project data available. Please submit the sales forecast form first.
+          No project data available. 
         </div>
       </div>
     );
@@ -93,7 +93,7 @@ const SalesForecastTable = () => {
     return (
       <div className="container mt-5">
         <div className="alert alert-warning" role="alert">
-          No data available. Please ensure you've submitted the sales forecast form.
+        No project data available. Please submit the form first.
         </div>
       </div>
     );
@@ -122,37 +122,37 @@ const SalesForecastTable = () => {
                 <tr>
                   <th>No. of Units Sold</th>
                   {monthNames.map((month, index) => (
-                    <td key={index}>{revenue_forecasts[index]?.units || '-'}</td>
+                    <td key={index}>{revenue_forecasts[index]?.units ? revenue_forecasts[index].units.toLocaleString('en-IN') : '-'}</td>
                   ))}
-                  <td>{calculations.total_units_sold}</td>
+                  <td>{calculations.total_units_sold.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>Revenue</th>
                   {monthNames.map((month, index) => (
-                    <td key={index}>{revenue_forecasts[index] ? revenue_forecasts[index].units * revenue_forecasts[index].price : '-'}</td>
+                    <td key={index}>₹{revenue_forecasts[index] ? (revenue_forecasts[index].units * revenue_forecasts[index].price).toLocaleString('en-IN') : '-'}</td>
                   ))}
-                  <td>{calculations.total_revenue}</td>
+                  <td>₹{calculations.total_revenue.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>Price Per Unit</th>
                   {monthNames.map((month, index) => (
-                    <td key={index}>{revenue_forecasts[index]?.price || '-'}</td>
+                    <td key={index}>₹{revenue_forecasts[index]?.price ? revenue_forecasts[index].price.toLocaleString('en-IN') : '-'}</td>
                   ))}
-                  <td>{calculations.total_priceperunit}</td>
+                  <td>₹{calculations.total_priceperunit.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>COGS</th>
                   {monthNames.map((month, index) => (
-                    <td key={index}>{revenue_forecasts[index] ? revenue_forecasts[index].units * revenue_forecasts[index].cost : '-'}</td>
+                    <td key={index}>₹{revenue_forecasts[index] ? (revenue_forecasts[index].units * revenue_forecasts[index].cost).toLocaleString('en-IN') : '-'}</td>
                   ))}
-                  <td>{calculations.total_cogs}</td>
+                  <td>₹{calculations.total_cogs.toLocaleString('en-IN')}</td>
                 </tr>
                 <tr>
                   <th>Cost Per Unit</th>
                   {monthNames.map((month, index) => (
-                    <td key={index}>{revenue_forecasts[index]?.cost || '-'}</td>
+                    <td key={index}>₹{revenue_forecasts[index]?.cost ? revenue_forecasts[index].cost.toLocaleString('en-IN') : '-'}</td>
                   ))}
-                  <td>{calculations.total_costperunit}</td>
+                  <td>₹{calculations.total_costperunit.toLocaleString('en-IN')}</td>
                 </tr>
               </tbody>
             </table>

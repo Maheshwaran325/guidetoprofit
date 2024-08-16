@@ -30,8 +30,8 @@ const FinancialAnalysis = ({ sessionId }) => {
 
         setData(response.data);
       } catch (err) {
-        console.error('Fetch error:', err);
-        setError(err.message);
+        // console.error('Fetch error:', err);
+        // setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -72,7 +72,7 @@ const FinancialAnalysis = ({ sessionId }) => {
     return (
       <div className="container mt-5">
         <div className="alert alert-warning" role="alert">
-          No data available or invalid data structure
+        No project data available. Please submit the form first.
         </div>
       </div>
     );
@@ -123,15 +123,15 @@ const FinancialAnalysis = ({ sessionId }) => {
                 {data.yearlyResults.map((yearData, index) => (
                   <tr key={index}>
                     <td>Year {index + 1}</td>
-                    <td>{yearData.number_of_sales?.toLocaleString() ?? 'N/A'}</td>
-                    <td>{yearData.avg_price_per_unit ? `₹${yearData.avg_price_per_unit.toLocaleString()}` : 'N/A'}</td>
-                    <td>{yearData.avg_cost_per_unit ? `₹${yearData.avg_cost_per_unit.toLocaleString()}` : 'N/A'}</td>
-                    <td>{yearData.value_of_each_sale ? `₹${yearData.value_of_each_sale.toLocaleString()}` : 'N/A'}</td>
-                    <td>{yearData.total_revenue ? `₹${yearData.total_revenue.toLocaleString()}` : 'N/A'}</td>
-                    <td>{yearData.gross_profit ? `₹${yearData.gross_profit.toLocaleString()}` : 'N/A'}</td>
-                    <td>{yearData.capitalCosts ? `₹${yearData.capitalCosts.toLocaleString()}` : 'N/A'}</td>
-                    <td>{yearData.expenses ? `₹${yearData.expenses.toLocaleString()}` : 'N/A'}</td>
-                    <td>{yearData.earnings ? `₹${yearData.earnings.toLocaleString()}` : 'N/A'}</td>
+                    <td>{yearData.number_of_sales?.toLocaleString('en-IN') ?? 'N/A'}</td>
+                    <td>{yearData.avg_price_per_unit ? `₹${yearData.avg_price_per_unit.toLocaleString('en-IN')}` : 'N/A'}</td>
+                    <td>{yearData.avg_cost_per_unit ? `₹${yearData.avg_cost_per_unit.toLocaleString('en-IN')}` : 'N/A'}</td>
+                    <td>{yearData.value_of_each_sale ? `₹${yearData.value_of_each_sale.toLocaleString('en-IN')}` : 'N/A'}</td>
+                    <td>{yearData.total_revenue ? `₹${yearData.total_revenue.toLocaleString('en-IN')}` : 'N/A'}</td>
+                    <td>{yearData.gross_profit ? `₹${yearData.gross_profit.toLocaleString('en-IN')}` : 'N/A'}</td>
+                    <td>{yearData.capitalCosts ? `₹${yearData.capitalCosts.toLocaleString('en-IN')}` : 'N/A'}</td>
+                    <td>{yearData.expenses ? `₹${yearData.expenses.toLocaleString('en-IN')}` : 'N/A'}</td>
+                    <td>{yearData.earnings ? `₹${yearData.earnings.toLocaleString('en-IN')}` : 'N/A'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -160,10 +160,10 @@ const FinancialAnalysis = ({ sessionId }) => {
           <h5 className="card-title">Summary</h5>
         </div>
         <div className="card-body">
-          <p>Total Funding Required: {data.totalFundingRequired ? `₹${data.totalFundingRequired.toLocaleString()}` : 'N/A'}</p>
-          <p>Total Revenue: {data.totalRevenue ? `₹${data.totalRevenue.toLocaleString()}` : 'N/A'}</p>
-          <p>Total Gross Profit: {data.totalGrossProfit ? `₹${data.totalGrossProfit.toLocaleString()}` : 'N/A'}</p>
-          <p>Total Earnings: {data.totalEarnings ? `₹${data.totalEarnings.toLocaleString()}` : 'N/A'}</p>
+          <p>Total Funding Required: {data.totalFundingRequired ? `₹${data.totalFundingRequired.toLocaleString('en-IN')}` : 'N/A'}</p>
+          <p>Total Revenue: {data.totalRevenue ? `₹${data.totalRevenue.toLocaleString('en-IN')}` : 'N/A'}</p>
+          <p>Total Gross Profit: {data.totalGrossProfit ? `₹${data.totalGrossProfit.toLocaleString('en-IN')}` : 'N/A'}</p>
+          <p>Total Earnings: {data.totalEarnings ? `₹${data.totalEarnings.toLocaleString('en-IN')}` : 'N/A'}</p>
         </div>
       </div>
     </div>

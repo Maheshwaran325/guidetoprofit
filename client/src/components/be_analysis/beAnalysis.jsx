@@ -25,14 +25,14 @@ const fetchBreakEvenData = async (sessionId, setBreakEvenData, setLoading, setEr
     }
     setBreakEvenData(response.data);
   } catch (err) {
-    console.error('Error fetching data:', err);
-    setError('Failed to fetch data. Please try again.');
+    // console.error('Error fetching data:', err);
+    // setError('Failed to fetch data. Please try again.');
   } finally {
     setLoading(false);
   }
 };
 
-const BEAnalysis = ({ sessionId }) => {
+const BEAnalysis = () => {
   const [breakEvenData, setBreakEvenData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,7 +50,7 @@ const BEAnalysis = ({ sessionId }) => {
     return (
       <div className="container mt-5">
         <div className="alert alert-info" role="alert">
-          No projectId data available. Please submit the break-even analysis form first.
+        No project data available. Please submit the form first.
         </div>
       </div>
     );
@@ -123,11 +123,11 @@ const BEAnalysis = ({ sessionId }) => {
                   <tbody>
                     <tr>
                       <td>Average sales price per unit</td>
-                      <td>₹ {(calculations.average_sales_price_per_unit || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.average_sales_price_per_unit || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Average cost of each unit</td>
-                      <td>₹ {(calculations.average_cost_per_unit || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.average_cost_per_unit || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Gross Profit Margin</td>
@@ -135,23 +135,23 @@ const BEAnalysis = ({ sessionId }) => {
                     </tr>
                     <tr>
                       <td>Fixed costs for the year</td>
-                      <td>₹ {(calculations.fixed_costs_for_the_year || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.fixed_costs_for_the_year || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Sales required to break even</td>
-                      <td>₹ {(calculations.sales_required_to_break_even || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.sales_required_to_break_even || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Number of unit sales to break even</td>
-                      <td>{(calculations.units_to_break_even || 0).toLocaleString()}</td>
+                      <td>{(calculations.units_to_break_even || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Gross Profit for the year</td>
-                      <td>₹ {(calculations.gross_profit_for_the_year || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.gross_profit_for_the_year || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Total Sales for the year</td>
-                      <td>₹ {(calculations.total_sales_for_the_year || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.total_sales_for_the_year || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Contribution Margin</td>
@@ -159,17 +159,26 @@ const BEAnalysis = ({ sessionId }) => {
                     </tr>
                     <tr>
                       <td>Operating Expenses</td>
-                      <td>₹ {(calculations.operating_expenses || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.operating_expenses || 0).toLocaleString('en-IN')}</td>
                     </tr>
+                    {/* <tr>
+                      <td>Gross Margin as a Percentage of Sales</td>
+                      <td>{((calculations.gross_margin_percent_of_sales || 0) * 100).toFixed(2)}%</td>
+                    </tr> */}
+                    {/* <tr>
+                      <td>Gross Margin of Total Sales</td>
+                      <td>₹ {(calculations.gross_margin_total_sales || 0).toLocaleString('en-IN')}</td>
+                    </tr> */}
                     <tr>
                       <td>Yearly Breakeven Amount</td>
-                      <td>₹ {(calculations.yearly_breakeven_amount || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.yearly_breakeven_amount || 0).toLocaleString('en-IN')}</td>
                     </tr>
                     <tr>
                       <td>Monthly Breakeven Amount</td>
-                      <td>₹ {(calculations.monthly_breakeven_amount || 0).toLocaleString()}</td>
+                      <td>₹ {(calculations.monthly_breakeven_amount || 0).toLocaleString('en-IN')}</td>
                     </tr>
                   </tbody>
+
                 </table>
               </div>
             </div>

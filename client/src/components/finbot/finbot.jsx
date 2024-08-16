@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { authenticatedRequest } from '../../utility/authenticatedRequestUtility'; 
 import Modal from 'react-modal';
 import 'bootstrap/dist/css/bootstrap.css';
 import { SiChatbot } from "react-icons/si";
 import { FaPaperPlane } from "react-icons/fa";
-
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import './finbot.css';
+
+const MAX_MESSAGES_PER_DAY = 24;
 
 const Finbot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +19,13 @@ const Finbot = () => {
   ]);
   const [input, setInput] = useState('');
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState([]);
+  const [, setIsInitialQuestionsComplete] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [messageCount, setMessageCount] = useState(0);
+  const [, setLastResetDate] = useState(null);
+
+  const chatContainerRef = useRef(null);
 
   const questions = [
     'What is your startup stage?',
@@ -25,40 +34,73 @@ const Finbot = () => {
     'Describe your company/startup with some keywords for best results'
   ];
 
-  const sendMessage = (message) => {
-    setMessages([...messages, { text: message, sender: 'user' }]);
+  useEffect(() => {
+    const fetchMessageCount = async () => {
+      try {
+        const response = await authenticatedRequest('http://localhost:8000/api/chat/count', 'GET');
+        setMessageCount(response.data.count);
+        setLastResetDate(response.data.lastResetDate);
+      } catch (error) {
+        console.error('Error fetching message count:', error);
+      }
+    };
+
+    fetchMessageCount();
+  }, []);
+
+  useEffect(() => {
+    if (isOpen && chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [isOpen, messages]);
+
+  const sendMessage = useCallback((message, isUser = true) => {
+    if (messageCount >= MAX_MESSAGES_PER_DAY) {
+      alert("You've reached the maximum number of messages for today. Please try again tomorrow.");
+      return;
+    }
+
+    setMessages(prev => [...prev, { text: message, sender: isUser ? 'user' : 'bot' }]);
+    setMessageCount(prevCount => prevCount + 1);
     setInput('');
-  };
+  }, [messageCount]);
 
   const handleFormSubmit = async () => {
     if (input.trim()) {
       sendMessage(input);
       
       if (questionIndex < 4) {
-        setUserInfo(prev => ({ ...prev, [questionIndex]: input }));
-        setQuestionIndex(questionIndex + 1);
+        setUserInfo(prev => [...prev, input]);
+        setQuestionIndex(prevIndex => prevIndex + 1);
         if (questionIndex < 3) {
+          setIsTyping(true);
           setTimeout(() => {
-            setMessages(prev => [...prev, { text: questions[questionIndex + 1], sender: 'bot' }]);
-          }, 500);
+            sendMessage(questions[questionIndex + 1], false);
+            setIsTyping(false);
+          }, 1000);
         } else {
+          setIsInitialQuestionsComplete(true);
+          setIsTyping(true);
           setTimeout(() => {
-            setMessages(prev => [...prev, { text: 'Thank you! You can now ask your financial questions.', sender: 'bot' }]);
-          }, 500);
+            sendMessage('Thank you! You can now ask your financial questions.', false);
+            setIsTyping(false);
+          }, 1000);
         }
       } else {
         try {
-          const response = await axios.post('/api/chat', { message: input, userInfo });
-          setMessages(prev => [...prev, { text: response.data.message, sender: 'bot' }]);
+          setIsTyping(true);
+          const response = await authenticatedRequest('http://localhost:8000/api/chat', 'POST', { message: input, userInfo });
+          setIsTyping(false);
+          sendMessage(response.data.message, false);
         } catch (error) {
           console.error('Error fetching response:', error);
-          setMessages(prev => [...prev, { text: 'Sorry, I encountered an error.', sender: 'bot' }]);
+          setIsTyping(false);
+          sendMessage('Sorry, I encountered an error.', false);
         }
       }
       setInput('');
     }
   };
-
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleFormSubmit();
@@ -134,12 +176,24 @@ const Finbot = () => {
             aria-label="Close"
           ></button>
         </div>
-        <div className="chat-container mb-3 flex-grow-1 overflow-auto">
+        <div 
+          className="chat-container mb-3 flex-grow-1 overflow-auto"
+          ref={chatContainerRef}
+        >
           {messages.map((msg, index) => (
             <div key={index} className={`chat-message ${msg.sender}`}>
-              {msg.text}
-            </div>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>           
+         </div>
           ))}
+          {isTyping && (
+            <div className="chat-message bot">
+              <div className="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          )}
         </div>
         <div className="mt-auto d-flex">
           <div className="flex-grow-1 me-2">
@@ -175,7 +229,6 @@ const Finbot = () => {
           <option value="Marketplace" />
           <option value="Other" />
         </datalist>
-        {/* Optional: You can add a datalist for the fourth question if necessary */}
       </Modal>
     </>
   );

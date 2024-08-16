@@ -1,246 +1,269 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import './dashboard.css';
-import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie, Line } from 'react-chartjs-2';
+import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Spinner, Button } from 'react-bootstrap';
+import { authenticatedRequest } from '../../utility/authenticatedRequestUtility';
+import { useProject } from '../../ProjectContext';
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(
+  ArcElement, 
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip, 
+  Legend
+);
 
-function Dashcomponents() {
-  const fixedCostData = {
-    labels: ['Salary', 'Advertising & Promotion', 'Utilities (Electricity), Office supply', 'Rent', 'Digital Marketing & Cust Services'],
-    datasets: [
-      {
-        data: [15000, 95000, 75000, 150000, 150000],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
-      },
-    ],
-  };
+const FinancialDashboard = React.memo(() => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const { projectId } = useProject();
+  const navigate = useNavigate();
+  
+  const fetchData = useCallback(async () => {
+    if (!projectId) {
+      return;
+    }
 
-  const startupCostData = {
-    labels: ['Business Registration fees', 'Product Development', 'Website Design & Development', 'Computer Systems'],
-    datasets: [
-      {
-        data: [15000, 95000, 75000, 150000],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-      },
-    ],
-  };
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await authenticatedRequest(`http://localhost:8000/financial-dashboard/data/${projectId}`);
+      
+      if (!response || !response.data) {
+        throw new Error('No data received from the server');
+      }
+  
+      setDashboardData(response.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError(`Failed to fetch data: ${error.message}. Please try again.`);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectId]);
 
-  const variableCostData = {
-    labels: ['Mentor Charges', 'Server Charges', 'Coordination Expenses', 'Miscellaneous'],
-    datasets: [
-      {
-        data: [15000, 95000, 75000, 150000],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-      },
-    ],
-  };
+  useEffect(() => {
+    if (projectId) {
+      fetchData();
+    }
+  }, [fetchData, projectId]);
 
-  const revenueData = {
-    labels: ['Number of customers', 'Units per purchased', 'Price per unit (INR)', 'Purchase frequency', 'Total sales in units', 'Total sales revenue (INR)'],
-    datasets: [
-      {
-        data: [15000, 95000, 75000, 150000, 150000, 150000],
-        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
-        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
-      },
-    ],
-  };
+  const prepareChartData = useMemo(() => (data, labelField = 'label', valueField = 'value') => {
+    if (!data || data.length === 0) {
+      return null;
+    }
+    return {
+      labels: data.map(item => item[labelField] || 'Unnamed'),
+      datasets: [{
+        data: data.map(item => parseFloat(item[valueField]) || 0),
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#4BC0C0'],
+        hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#4BC0C0'],
+      }],
+    };
+  }, []);
 
-  const options = {
+  const monthlyRevenueData = useMemo(() => {
+    if (!dashboardData || !dashboardData.forecast_pl_calculations || !dashboardData.forecast_pl_calculations.monthly_results || dashboardData.forecast_pl_calculations.monthly_results.length === 0) {
+      return null;
+    }
+
+    const monthlyResults = dashboardData.forecast_pl_calculations.monthly_results;
+    
+    if (!Array.isArray(monthlyResults)) {
+      console.error('Monthly results is not an array:', monthlyResults);
+      return null;
+    }
+
+    return {
+      labels: monthlyResults.map(month => month.month),
+      datasets: [
+        {
+          label: 'Revenue',
+          data: monthlyResults.map(month => {
+            const revenue = parseFloat(month.revenue);
+            return isNaN(revenue) ? 0 : revenue;
+          }),
+          borderColor: '#36A2EB',
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        },
+        {
+          label: 'Expenses',
+          data: monthlyResults.map(month => {
+            const cogs = parseFloat(month.cogs) || 0;
+            const salaryTotal = parseFloat(month.salaryTotal) || 0;
+            const totalExpenses = cogs + salaryTotal;
+            return totalExpenses;
+          }),
+          borderColor: '#FF6384',
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        }
+      ]
+    };
+  }, [dashboardData]);
+
+  const lineChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          callback: function(value, index, values) {
+            return '₹' + value.toLocaleString('en-IN');
+          }
+        }
+      }
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(context.parsed.y);
+            }
+            return label;
+          }
+        }
+      }
+    }
   };
 
+  const pieChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || ''; // Changed from context.label to context.dataset.label
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed !== null) {
+              label += new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(context.parsed);
+            }
+            return label;
+          }
+        }
+      }
+    }
+  };
+  
+  if (isLoading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{height: '100vh'}}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (!dashboardData || !dashboardData.forecast_pl_calculations || !dashboardData.forecast_pl_calculations.monthly_results || dashboardData.forecast_pl_calculations.monthly_results.length === 0) {
+    return (
+      <div className="container mt-5 text-center">
+        <h3>No financial data available</h3>
+        <p>Please fill out the necessary forms to view your financial dashboard.</p>
+        <Button className="btn-add" onClick={() => navigate('/entrylog')}>
+          Go to Entry Log
+        </Button>
+      </div>
+    );
+  }
+  
+  const startupCostData = prepareChartData([
+    { label: 'Total Startup Costs', value: dashboardData.startup_calculations?.total_startup_costs || 0 },
+    { label: 'Starting Operations Budgeted', value: dashboardData.startup_calculations?.starting_operations_budgeted || 0 },
+    { label: 'Total Startup Capital', value: dashboardData.startup_calculations?.total_startup_capital || 0 },
+    { label: 'Capital Work Progress Amount', value: dashboardData.startup_calculations?.capital_work_progress_amount || 0 },
+  ]);
+  
+  const fundingData = prepareChartData([
+    { label: 'Total Revenue', value: dashboardData.funding_calculations?.total_revenue || 0 },
+    { label: 'Total Earnings', value: dashboardData.funding_calculations?.total_earnings || 0 },
+    { label: 'Total Funding Required', value: dashboardData.funding_calculations?.total_funding_required || 0 },
+  ]);
+
   return (
-    <div className="content">
-      <div className="dashboard-cards dashboard-cards-custom">
-        <div className="container mt-4">
-          <div className="row">
-            <div className="col-md-4">
-              {/* Card 1 */}
-              <div className="card shadow">
-                <div className="card-header d-flex justify-content-between align-items-center">
-                  <div>
-                    <h5 className="card-title">Fixed Costs</h5>
-                    <h6 className="card-subtitle">(for a month)</h6>
-                  </div>
-                  <h5 className="mb-0">₹335000</h5>
-                </div>
-                <div className="card-body">
-                  <div className="highlight-item">
-                    <span>Salary</span>
-                    <span className="text">15000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Advertising & Promotion</span>
-                    <span className="text">95000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Utilities (Electricity), Office supply</span>
-                    <span className="text">75000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Rent</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Digital Marketing & Cust Services</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div style={{ height: '300px', marginTop: '20px' }}>
-                    <Pie data={fixedCostData} options={options} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="card shadow mt-4">
-                <div className="card-header">
-                  <h5 className="card-title">Startup Costs</h5>
-                  <h6 className="card-subtitle mb-2">Consolidate</h6>
-                </div>
-                <div className="card-body">
-                  <div className="highlight-item">
-                    <span>Business Registration fees</span>
-                    <span className="text">15000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Product Development</span>
-                    <span className="text">95000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Website Design & Development</span>
-                    <span className="text">75000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Computer Systems</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div style={{ height: '300px', marginTop: '20px' }}>
-                    <Pie data={startupCostData} options={options} />
-                  </div>
-                </div>
-              </div>
+    <div className="container mt-5">      
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header">Monthly Revenue vs Expenses</div>
+            <div className="card-body" style={{height: '300px'}}>
+              {monthlyRevenueData ? (
+                <Line data={monthlyRevenueData} options={lineChartOptions} />
+              ) : (
+                <p>No monthly revenue data available</p>
+              )}
             </div>
-
-            <div className="col-md-4">
-              {/* Card 3 */}
-              <div className="card shadow">
-                <div className="card-header">
-                  <h5 className="card-title">Variable Costs</h5>
-                  <h6 className="card-subtitle mb-2">(per unit)</h6>
-                </div>
-                <div className="card-body">
-                  <div className="highlight-item">
-                    <span>Mentor Charges</span>
-                    <span className="text">15000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Server Charges</span>
-                    <span className="text">95000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Coordination Expenses</span>
-                    <span className="text">75000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Miscellaneous</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div style={{ height: '300px', marginTop: '20px' }}>
-                    <Pie data={variableCostData} options={options} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Card 4 */}
-              <div className="card shadow mt-4">
-                <div className="card-header">
-                  <h5 className="card-title">Revenues</h5>
-                  <h6 className="card-subtitle mb-2">(for 30 days)</h6>
-                </div>
-                <div className="card-body">
-                  <div className="highlight-item">
-                    <span>Number of customers</span>
-                    <span className="text">15000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Units per purchased</span>
-                    <span className="text">95000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Price per unit (INR)</span>
-                    <span className="text">75000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Purchase frequency</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Total sales in units</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Total sales revenue (INR)</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div style={{ height: '300px', marginTop: '20px' }}>
-                    <Pie data={revenueData} options={options} />
-                  </div>
-                </div>
-              </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header">Startup Costs</div>
+            <div className="card-body" style={{height: '300px'}}>
+              {startupCostData ? (
+                <Pie data={startupCostData} options={pieChartOptions} />
+              ) : (
+                <p>No startup cost data available</p>
+              )}
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="col-md-4">
-              {/* Card 5 */}
-              <div className="card shadow">
-                <div className="card-header">
-                  <h5 className="card-title">Summary</h5>
-                  <h6 className="card-subtitle mb-2">Overall Revenue</h6>
-                </div>
-                <div className="card-body">
-                  <div className="highlight-item">
-                    <span>Sales</span>
-                    <span className="text">15000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Other Revenue Sources</span>
-                    <span className="text">15000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Profit</span>
-                    <span className="text">95000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Break-Even</span>
-                    <span className="text">75000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Total</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Payback-Period</span>
-                    <span className="text">150000</span>
-                  </div>
-                  <div className="highlight-item">
-                    <span>Contribution</span>
-                    <span className="text">150000</span>
-                  </div>
-                </div>
-              </div>
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header">Funding Overview of Five Years</div>
+            <div className="card-body" style={{height: '300px'}}>
+              {fundingData ? (
+                <Pie data={fundingData} options={pieChartOptions} />
+              ) : (
+                <p>No funding data available</p>
+              )}
             </div>
-
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-header">Key Metrics</div>
+            <div className="card-body">
+              <ul className="list-group list-group-flush">
+                <li className="list-group-item">Break-even Point: ₹{(dashboardData.break_even_calculations?.sales_required_to_break_even || 0).toLocaleString('en-IN')} </li>
+                <li className="list-group-item">Gross Profit Margin: {((dashboardData.break_even_calculations?.gross_profit_margin || 0) * 100).toFixed(2)}%</li>
+                <li className="list-group-item">Total Sales Forecast: ₹{(dashboardData.sales_forecast_calculations?.total_revenue || 0).toLocaleString('en-IN')}</li>
+                <li className="list-group-item">Net Profit Margin: {((dashboardData.forecast_pl_calculations?.net_profit_margin || 0) * 100).toFixed(2)}%</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+});
 
-export default Dashcomponents;
+export default FinancialDashboard;

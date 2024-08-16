@@ -9,12 +9,16 @@ const breakEvenController = {
       // Fetch input data and saved calculations
       const { salesForecasts, forecastPL, breakEvenCalcs } = await breakEvenModel.getInputData(projectId);
 
-      // If we don't have saved calculations, run and save them
-      let calculations = breakEvenCalcs;
-      if (!breakEvenCalcs) {
-        calculations = breakEvenCalc.runCalculations(salesForecasts, forecastPL);
-        await breakEvenModel.saveBreakEvenCalculations(projectId, calculations);
-      }
+       // Run calculations and save them, regardless of whether they exist
+       const calculations = breakEvenCalc.runCalculations(salesForecasts, forecastPL);
+       await breakEvenModel.saveBreakEvenCalculations(projectId, calculations);
+       
+      // // If we don't have saved calculations, run and save them
+      // let calculations = breakEvenCalcs;
+      // if (!breakEvenCalcs) {
+      //   calculations = breakEvenCalc.runCalculations(salesForecasts, forecastPL);
+      //   await breakEvenModel.saveBreakEvenCalculations(projectId, calculations);
+      // }
 
       // Respond with the data
       res.status(200).json({
@@ -28,7 +32,7 @@ const breakEvenController = {
     }
   },
 
-  async getCalculations(req, res) {
+  async getOnlyCalculations(req, res) {
     try {
       const { projectId } = req.params;
 

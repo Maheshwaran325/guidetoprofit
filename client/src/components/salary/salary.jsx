@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.css';
+import './salary.css';  // Make sure to import the CSS file
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, BarElement, Tooltip, Legend, CategoryScale, LinearScale } from 'chart.js';
 import { authenticatedRequest } from '../../utility/authenticatedRequestUtility';
@@ -13,6 +14,7 @@ function EmployeeSalariesTable() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { projectId } = useProject();
+
   useEffect(() => {
     const fetchData = async () => {
       if (!projectId) {
@@ -23,7 +25,7 @@ function EmployeeSalariesTable() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await authenticatedRequest(`http://localhost:8000/salaries/data/${projectId}`);        
+        const response = await authenticatedRequest(`http://localhost:8000/salaries/data/${projectId}`);
         setSalariesData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -121,12 +123,12 @@ function EmployeeSalariesTable() {
           <h5 className="card-title">Salaries Distribution</h5>
         </div>
         <div className="card-body p-0">
-          <div className="table-responsive mt-4">
-            <table className="table mb-0">
+          <div className="salary-table-container mt-4">
+            <table className="table mb-0 salary-table">
               <thead>
                 <tr>
                   <th>Employee</th>
-                  {monthOptions.map(month => <th key={month}>{month.slice(0, 3)}</th>)}
+                  {monthOptions.map(month => <th key={month}>{month}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -134,14 +136,14 @@ function EmployeeSalariesTable() {
                   <tr key={employee}>
                     <th>{employee}</th>
                     {salaries[employee].map((salary, index) => (
-                      <td key={index}>{salary ? `₹ ${salary.toLocaleString()}` : '-'}</td>
+                      <td key={index}>{salary ? `₹${salary.toLocaleString('en-IN')}` : '-'}</td>
                     ))}
                   </tr>
                 ))}
                 <tr>
                   <th>Total Salaries</th>
                   {monthlyTotals.map((total, index) => (
-                    <td key={index}>₹ {total.toLocaleString()}</td>
+                    <td key={index}>₹{total.toLocaleString('en-IN')}</td>
                   ))}
                 </tr>
               </tbody>
@@ -177,4 +179,3 @@ function EmployeeSalariesTable() {
 }
 
 export default EmployeeSalariesTable;
-

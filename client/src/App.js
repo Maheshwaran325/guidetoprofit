@@ -13,6 +13,11 @@ import EmployeeSalary from "./pages/employeeSalary/employeeSalary";
 import Plforecast from "./pages/plforecast/plforecast";
 import BreakEvenAnalysis from "./pages/break_even_analysis/breakEvenAnalysis";
 import Funding from "./pages/funding/funding";
+import Finbot from '../src/components/finbot/finbot';
+import Calculator from '../src/components/calculator/calculator.jsx';
+import BackToTopButton from '../src/components/backtotop/backtotop.jsx';
+import Glossary from './pages/glossary/glossary.jsx';
+
 import './App.css';
 
 function App() {
@@ -24,15 +29,16 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/" element={<PrivateRoute><MainPage /></PrivateRoute>} />
-            <Route path="/entrylog" element={<PrivateRoute><Entrylog /></PrivateRoute>} />
-            <Route path="/startupcost" element={<PrivateRoute><StartupCost /></PrivateRoute>} />
-            <Route path="/cogs_calculator" element={<PrivateRoute><CogsCalculator /></PrivateRoute>} />
-            <Route path="/salesforecast" element={<PrivateRoute><Salesforecast /></PrivateRoute>} />
-            <Route path="/employeesalary" element={<PrivateRoute><EmployeeSalary /></PrivateRoute>} />
-            <Route path="/plforecast" element={<PrivateRoute><Plforecast /></PrivateRoute>} />
-            <Route path="/breakevenanalysis" element={<PrivateRoute><BreakEvenAnalysis /></PrivateRoute>} />
-            <Route path="/funding" element={<PrivateRoute><Funding /></PrivateRoute>} />
+            <Route path="/" element={<PrivateRoute><MainPage /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/entrylog" element={<PrivateRoute><Entrylog /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/startupcost" element={<PrivateRoute><StartupCost /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/cogs_calculator" element={<PrivateRoute><CogsCalculator /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/salesforecast" element={<PrivateRoute><Salesforecast /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/employeesalary" element={<PrivateRoute><EmployeeSalary /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/plforecast" element={<PrivateRoute><Plforecast /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/breakevenanalysis" element={<PrivateRoute><BreakEvenAnalysis /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/funding" element={<PrivateRoute><Funding /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/glossary" element={<PrivateRoute><Glossary /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
           </Routes>
         </div>
       </Router>

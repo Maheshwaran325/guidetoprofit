@@ -1,34 +1,34 @@
 import supabase from '../../../config/supabase.js';
 
 const fundingModel = {
-  async getProjectInputData(projectId) {
+ async getProjectInputData(projectId) {
     const { data: salesForecasts, error: salesForecastsError } = await supabase
       .from('sales_forecast_calculations')
       .select('*')
       .eq('project_id', projectId);
-
     if (salesForecastsError) {
-      throw new Error('Error fetching sales forecasts data');
+      console.error('Error fetching sales forecasts data:', salesForecastsError);
+      return null;
     }
 
     const { data: capitalCosts, error: capitalCostsError } = await supabase
       .from('capital_costs')
       .select('*')
       .eq('project_id', projectId);
-
     if (capitalCostsError) {
-      throw new Error('Error fetching capital costs data');
+      console.error('Error fetching capital costs data:', capitalCostsError);
+      return null;
     }
 
-    const { data: payrollData, error: payrollDataError } = await supabase
-      .from('employee_payrolls')
-      .select('*')
+    const { data: forecastPlCalculations, error: forecastPlCalculationsError } = await supabase
+      .from('forecast_pl_calculations')
+      .select('total_fixed_expenses')
       .eq('project_id', projectId);
 
-    if (payrollDataError) {
-      throw new Error('Error fetching payroll data');
+    if (forecastPlCalculationsError) {
+      console.error('Error fetching total fixed expenses data:', forecastPlCalculationsError);
+      return null;
     }
-
     const { data: fixedExpenses, error: fixedExpensesError } = await supabase
       .from('fixed_expenses')
       .select('*')
@@ -37,9 +37,21 @@ const fundingModel = {
     if (fixedExpensesError) {
       throw new Error('Error fetching fixed expenses data');
     }
+    const { data: salaryData, error: salaryDataError } = await supabase
+    .from('salary_calculations')
+    .select('grand_total')
+    .eq('project_id', projectId);
+  if (salaryDataError) {
+    console.error('Error fetching salary data:', salaryDataError);
+    return null;
+  }
+  const totalSalary = salaryData?.[0]?.grand_total || 0;
 
-    return { salesForecasts, capitalCosts, payrollData, fixedExpenses };
-  },
+    const totalFixedExpenses = forecastPlCalculations?.[0]?.total_fixed_expenses || 0;
+
+    return { salesForecasts, capitalCosts, totalFixedExpenses, fixedExpenses, totalSalary  };
+},
+
 
   async saveCalculations(projectId, calculations) {
     if (!calculations || !calculations.yearlyResults) {

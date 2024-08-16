@@ -7,9 +7,9 @@ const forecastPLModel = {
       supabase.from('fixed_expenses').select('*').eq('project_id', projectId),
       supabase.from('salary_calculations').select('*').eq('project_id', projectId)
     ];
-  
+
     const results = await Promise.all(queries);
-  
+
     const [revenueForecasts, fixedExpenses, salaryCalculations] = results.map(({ data, error }, index) => {
       if (error) {
         const tableNames = ['revenue forecasts', 'fixed expenses', 'salary calculations'];
@@ -17,14 +17,18 @@ const forecastPLModel = {
       }
       return data;
     });
-  
+
     if (!revenueForecasts.length) throw new Error(`No revenue forecast data found for project ${projectId}`);
     if (!fixedExpenses.length) throw new Error(`No fixed expenses data found for project ${projectId}`);
     if (!salaryCalculations.length) throw new Error(`No salary calculations data found for project ${projectId}`);
-  
+
     return { revenueForecasts, fixedExpenses, salaryCalculations };
   },
-  
+
+  async generateForecastPL(projectId) {
+    const { revenueForecasts, fixedExpenses, salaryCalculations } = await this.getProjectInputData(projectId);
+    return forecastPLCalc.runCalculations(revenueForecasts, fixedExpenses, salaryCalculations);
+  },
 
   async saveCalculations(projectId, calculations) {
     if (!calculations || !calculations.monthlyResults || !calculations.totals) {
@@ -37,7 +41,7 @@ const forecastPLModel = {
       total_sales: calculations.totals.totalSales,
       total_cogs: calculations.totals.totalCOGS,
       total_gross_profit: calculations.totals.totalGrossProfit,
-      total_fixed_expenses: calculations.totals.totalFixedExpenses,
+      total_fixed_expenses: calculations.totals.totalExpenses,
       total_net_profit_or_loss: calculations.totals.totalNetProfitOrLoss,
       gross_profit_margin: calculations.totals.grossProfitMargin,
       net_profit_margin: calculations.totals.netProfitMargin,

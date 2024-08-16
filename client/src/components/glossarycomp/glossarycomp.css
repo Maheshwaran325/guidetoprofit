@@ -1,0 +1,45 @@
+.filter-sidebar {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+  }
+  
+  .alphabet-filter {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .letter {
+    cursor: pointer;
+    padding: 5px;
+    margin: 2px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  .letter:hover, .letter.active {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+  }
+  
+  .topic-filter {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .topic {
+    cursor: pointer;
+    padding: 5px;
+    margin: 2px 0;
+    border-radius: 3px;
+  }
+  
+  .topic:hover, .topic.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .glossary-list {
+    padding-right: 15px;
+  }

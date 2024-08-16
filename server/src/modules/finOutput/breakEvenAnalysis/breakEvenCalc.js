@@ -2,7 +2,7 @@ const breakEvenCalc = {
     runCalculations(salesForecasts, forecastPL) {
       const averageSalesPricePerUnit = salesForecasts[0].total_priceperunit;
       const averageCostPerUnit = salesForecasts[0].total_costperunit;
-  
+
       const grossProfitMargin = (averageSalesPricePerUnit - averageCostPerUnit) / averageSalesPricePerUnit;
       const fixedCostsForTheYear = forecastPL[0].total_fixed_expenses;
       const salesRequiredToBreakEven = grossProfitMargin > 0 ? fixedCostsForTheYear / grossProfitMargin : 0;
@@ -24,20 +24,20 @@ const breakEvenCalc = {
       const monthlyBreakevenAmount = yearlyBreakevenAmount / 12;
   
       return {
-        averageSalesPricePerUnit,
-        averageCostPerUnit,
+        averageSalesPricePerUnit: Math.round(averageSalesPricePerUnit),
+        averageCostPerUnit: Math.round(averageCostPerUnit),
         grossProfitMargin,
-        fixedCostsForTheYear,
-        salesRequiredToBreakEven,
-        unitsToBreakEven,
-        grossProfitForTheYear,
-        totalSalesForTheYear,
+        fixedCostsForTheYear: Math.round(fixedCostsForTheYear),
+        salesRequiredToBreakEven: Math.round(salesRequiredToBreakEven),
+        unitsToBreakEven: Math.round(unitsToBreakEven),
+        grossProfitForTheYear: Math.round(grossProfitForTheYear),
+        totalSalesForTheYear: Math.round(totalSalesForTheYear),
         contributionMargin,
         grossMarginTotalSales,
-        operatingExpenses,
+        operatingExpenses: Math.round(operatingExpenses),
         grossMarginPercentOfSales,
-        yearlyBreakevenAmount,
-        monthlyBreakevenAmount
+        yearlyBreakevenAmount: Math.round(yearlyBreakevenAmount),
+        monthlyBreakevenAmount: Math.round(monthlyBreakevenAmount)
       };
     }
   };

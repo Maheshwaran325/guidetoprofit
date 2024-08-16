@@ -81,3 +81,23 @@
 .highlight-item .icon {
     margin-left: 0.5rem;
 }
+
+.btn-add {
+    background-color: #F16736;
+    color: #fff;
+    border-radius: 20px;
+    font-size: 14px;
+    border: none; /* Ensure there's no border */
+    outline: none; /* Remove the outline */
+    box-shadow: none; /* Remove any box shadow */
+}
+
+.btn-add:hover {
+    background-color: #c05a35;
+    color: #fff;
+}
+
+.btn-add:focus {
+    outline: none; /* Ensure no outline on focus */
+    box-shadow: none; /* Remove box shadow on focus */
+}

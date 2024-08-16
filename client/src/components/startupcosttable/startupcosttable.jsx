@@ -70,6 +70,22 @@ const Startupcosttable = React.memo(() => {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed !== undefined) {
+              label += '₹' + context.parsed.toLocaleString('en-IN');
+            }
+            return label;
+          }
+        }
+      }
+    }
   };
 
   if (isLoading) {
@@ -96,7 +112,7 @@ const Startupcosttable = React.memo(() => {
     return (
       <div className="container mt-5">
         <div className="alert alert-warning" role="alert">
-          No data available. Please ensure you've submitted the startup cost form.
+        No project data available. Please submit the form first.
         </div>
       </div>
     );
@@ -118,15 +134,15 @@ const Startupcosttable = React.memo(() => {
                 <div>
                   <h6 className="card-title">Startup Cost</h6>
                 </div>
-                <h6 className="mb-0">₹{calculationResults?.total_startup_costs?.toFixed(2) || '0.00'}</h6>
-              </div>
+                <h6 className="mb-0"> ₹{calculationResults?.total_startup_costs?.toLocaleString('en-IN')}</h6>
+               </div>
               <div className="card-body">
                 {(inputData.startup_costs || []).map((item, index) => (
                   <React.Fragment key={index}>
                     <div className="highlight-item">
                       <span>{item.description}</span>
-                      <span className="text">₹{parseFloat(item.amount).toFixed(2)}</span>
-                    </div>
+                      <span className="text">₹{parseFloat(item.amount).toLocaleString('en-IN')}</span>         
+                     </div>
                     {index < (inputData.startup_costs?.length || 0) - 1 && <hr />}
                   </React.Fragment>
                 ))}
@@ -141,14 +157,14 @@ const Startupcosttable = React.memo(() => {
                 <div>
                   <h6 className="card-title">Capital Work in Progress (Fixed Asset)</h6>
                 </div>
-                <h6 className="mb-0">₹{calculationResults?.capital_work_progress_amount?.toFixed(2) || '0.00'}</h6>
+                <h6 className="mb-0">₹{calculationResults?.capital_work_progress_amount?.toLocaleString('en-IN')}</h6>
               </div>
               <div className="card-body">
                 {(inputData.capital_work_progress || []).map((item, index) => (
                   <React.Fragment key={index}>
                     <div className="highlight-item">
                       <span>{item.description}</span>
-                      <span className="text">₹{parseFloat(item.amount).toFixed(2)}</span>
+                      <span className="text">₹{parseFloat(item.amount).toLocaleString('en-IN')}</span>
                     </div>
                     {index < (inputData.capital_work_progress?.length || 0) - 1 && <hr />}
                   </React.Fragment>
@@ -166,14 +182,14 @@ const Startupcosttable = React.memo(() => {
                 <div>
                   <h6 className="card-title">Starting Operations (Budgeted)</h6>
                 </div>
-                <h6 className="mb-0">₹{calculationResults?.starting_operations_budgeted?.toFixed(2) || '0.00'}</h6>
+                <h6 className="mb-0">₹{calculationResults?.starting_operations_budgeted?.toLocaleString('en-IN')}</h6>
               </div>
               <div className="card-body">
                 {(inputData.starting_operations || []).map((item, index) => (
                   <React.Fragment key={index}>
                     <div className="highlight-item">
                       <span>{item.description}</span>
-                      <span className="text">₹{parseFloat(item.amount).toFixed(2)}</span>
+                      <span className="text">₹{parseFloat(item.amount).toLocaleString('en-IN')}</span>
                     </div>
                     {index < (inputData.starting_operations?.length || 0) - 1 && <hr />}
                   </React.Fragment>
@@ -189,14 +205,14 @@ const Startupcosttable = React.memo(() => {
                 <div>
                   <h6 className="card-title">Start-up Capital</h6>
                 </div>
-                <h6 className="mb-0">₹{calculationResults?.total_startup_capital?.toFixed(2) || '0.00'}</h6>
+                <h6 className="mb-0">₹{calculationResults?.total_startup_capital?.toLocaleString('en-IN')}</h6>
               </div>
               <div className="card-body">
                 {(inputData.startup_capital || []).map((item, index) => (
                   <React.Fragment key={index}>
                     <div className="highlight-item">
                       <span>{item.description}</span>
-                      <span className="text">₹{parseFloat(item.amount).toFixed(2)}</span>
+                      <span className="text">₹{parseFloat(item.amount).toLocaleString('en-IN')}</span>
                     </div>
                     {index < (inputData.startup_capital?.length || 0) - 1 && <hr />}
                   </React.Fragment>

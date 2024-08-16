@@ -8,6 +8,19 @@ const Calculator = () => {
   const [result, setResult] = useState('');
   const [expression, setExpression] = useState('');
 
+  const formatNumber = (num) => {
+    if (num === '') return '';
+    const parts = num.toString().split('.');
+    let integerPart = parts[0];
+    let lastThreeDigits = integerPart.slice(-3);
+    let otherDigits = integerPart.slice(0, -3);
+    if (otherDigits !== '') {
+      lastThreeDigits = ',' + lastThreeDigits;
+    }
+    const formattedIntegerPart = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThreeDigits;
+    return parts.length > 1 ? formattedIntegerPart + '.' + parts[1] : formattedIntegerPart;
+  };
+
   const calculate = (expr) => {
     const tokens = expr.match(/(\d+\.?\d*|[+\-*/%])/g) || [];
     const output = [];
@@ -49,31 +62,45 @@ const Calculator = () => {
   const handleClick = (value) => {
     if (value === '=') {
       try {
-        setResult(calculate(expression).toString());
+        const calcResult = calculate(expression.replace(/,/g, '')).toString();
+        setResult(formatNumber(calcResult));
       } catch (error) {
         setResult('Error');
       }
     } else if (value === 'C') {
       setExpression('');
       setResult('');
-    } else if (value === '⌫') {  // Backspace
+    } else if (value === '⌫') {
       setExpression(prev => prev.slice(0, -1));
     } else {
-      setExpression(prev => prev + value);
+      setExpression(prev => {
+        const newExpression = prev + value;
+        const formattedExpression = newExpression
+          .split(/([+\-*/%])/) // Split the expression by operators
+          .map(part => (isNaN(part) ? part : formatNumber(part.replace(/,/g, '')))) // Format numbers, leave operators as they are
+          .join(''); // Rejoin the expression
+        return formattedExpression;
+      });
     }
   };
-
+  
   const handleChange = (e) => {
-    const value = e.target.value;
-    if (/^[\d+\-*/%.]*$/.test(value)) {
-      setExpression(value);
+    const rawValue = e.target.value.replace(/,/g, '');
+    if (/^[\d+\-*/%.]*$/.test(rawValue)) {
+      const formattedExpression = rawValue
+        .split(/([+\-*/%])/)
+        .map(part => (isNaN(part) ? part : formatNumber(part)))
+        .join('');
+      setExpression(formattedExpression);
     }
   };
+  
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       try {
-        setResult(calculate(expression).toString());
+        const calcResult = calculate(expression.replace(/,/g, '')).toString();
+        setResult(formatNumber(calcResult));
       } catch (error) {
         setResult('Error');
       }
@@ -85,7 +112,7 @@ const Calculator = () => {
     '4', '5', '6', '*',
     '1', '2', '3', '-',
     '0', '.', '%', '+',
-    'C', '⌫', '='  // Added backspace button
+    'C', '⌫', '='
   ];
 
   return (
@@ -113,7 +140,7 @@ const Calculator = () => {
         onRequestClose={() => setIsOpen(false)}
         style={{
           overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0)',  // Semi-transparent background
+            backgroundColor: 'rgba(0, 0, 0, 0)', 
           },
           content: {
             top: '50%',

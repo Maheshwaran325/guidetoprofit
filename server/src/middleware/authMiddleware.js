@@ -39,26 +39,32 @@
 //   }
 // };
 
-
 import supabase from '../config/supabase.js';
 
 export const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (token == null) return res.sendStatus(401);
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
 
   try {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const { data, error } = await supabase.auth.getUser(token);
 
-    if (error || !user) {
-      return res.sendStatus(403);
+    if (error) {
+      console.error('Supabase auth error:', error.message);
+      return res.status(403).json({ error: 'Invalid token' });
     }
 
-    req.user = user;
+    if (!data.user) {
+      return res.status(403).json({ error: 'User not found' });
+    }
+
+    req.user = data.user;
     next();
   } catch (error) {
     console.error('Error verifying token:', error.message);
-    return res.sendStatus(403);
+    return res.status(500).json({ error: 'Internal server error during authentication' });
   }
 };
