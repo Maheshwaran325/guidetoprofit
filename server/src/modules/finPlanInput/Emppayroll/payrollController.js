@@ -1,4 +1,5 @@
 import PayrollModel from './payrollModel.js';
+import logger from '../../../../logger.js';
 
 const PayrollController = {
   async addEmployeePayroll(req, res) {
@@ -12,7 +13,7 @@ const PayrollController = {
         employee_payrolls: result
       });
     } catch (error) {
-      console.error('Error in addEmployeePayroll:', error);
+      logger.error('Error in addEmployeePayroll:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -28,7 +29,7 @@ const PayrollController = {
         employee_payrolls: result
       });
     } catch (error) {
-      console.error('Error in updateEmployeePayroll:', error);
+      logger.error('Error in updateEmployeePayroll:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -44,7 +45,7 @@ const PayrollController = {
         employee_payrolls: result
       });
     } catch (error) {
-      console.error('Error in deleteEmployeePayroll:', error);
+      logger.error('Error in deleteEmployeePayroll:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -59,7 +60,7 @@ const PayrollController = {
         employee_payrolls: result
       });
     } catch (error) {
-      console.error('Error updating payroll data:', error);
+      logger.error('Error updating payroll data:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -73,7 +74,7 @@ const PayrollController = {
         employee_payrolls: result
       });
     } catch (error) {
-      console.error('Error fetching payroll data:', error);
+      logger.error('Error fetching payroll data:', error);
       res.status(500).json({ error: error.message });
     }
   }

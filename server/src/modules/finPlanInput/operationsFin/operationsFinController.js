@@ -1,4 +1,5 @@
 import OperationsFinanceModel from './operationsFinModel.js';
+import logger from '../../../../logger.js';
 
 const OperationsFinanceController = {
   async createOrUpdateOperationsFinanceData(req, res) {
@@ -17,7 +18,7 @@ const OperationsFinanceController = {
         }
       });
     } catch (error) {
-      console.error('Error updating Operations & Finance data:', error);
+      logger.error('Error updating Operations & Finance data:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -35,7 +36,7 @@ const OperationsFinanceController = {
         variableCosts
       });
     } catch (error) {
-      console.error('Error fetching Operations & Finance data:', error);
+      logger.error('Error fetching Operations & Finance data:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -56,7 +57,7 @@ const OperationsFinanceController = {
         revenueForecasts: updatedForecasts
       });
     } catch (error) {
-      console.error('Error updating revenue forecast:', error);
+      logger.error('Error updating revenue forecast:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -77,7 +78,7 @@ const OperationsFinanceController = {
         revenueForecasts: updatedForecasts
       });
     } catch (error) {
-      console.error('Error adding revenue forecasts:', error);
+      logger.error('Error adding revenue forecasts:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -98,7 +99,7 @@ const OperationsFinanceController = {
         revenueForecasts: remainingForecasts
       });
     } catch (error) {
-      console.error('Error deleting revenue forecast:', error);
+      logger.error('Error deleting revenue forecast:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -111,7 +112,7 @@ const OperationsFinanceController = {
       await OperationsFinanceModel.deleteItem(itemId, table, projectId, authUserId);
       res.status(200).json({ message: 'Item deleted successfully' });
     } catch (error) {
-      console.error('Error in deleteItem:', error);
+      logger.error('Error in deleteItem:', error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -142,7 +143,7 @@ export default OperationsFinanceController;
 //         }
 //       });
 //     } catch (error) {
-//       console.error('Error creating Operations & Finance data:', error);
+//       logger.error('Error creating Operations & Finance data:', error);
 //       res.status(500).json({ error: error.message, details: error.details });
 //     }
 //   }

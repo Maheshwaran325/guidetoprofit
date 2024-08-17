@@ -18,7 +18,7 @@ const years = ['Year1', 'Year2', 'Year3', 'Year4', 'Year5'];
 // =============================================================================
 // ... (previous imports and code)
 
-const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
+const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete  }) => {
   const [showModal, setShowModal] = useState(false);
   const [monthlyData, setMonthlyData] = useState([]);
   const [error, setError] = useState('');
@@ -150,7 +150,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
     }
   };
 
-  const handleDelete = async (forecastId) => {
+  const handleDelete = useCallback(async (forecastId) => {
     try {
       const response = await authenticatedRequest(
         `http://localhost:8000/operations/delete-revenue-forecast/${projectId}`,
@@ -161,15 +161,18 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData }) => {
       if (response.data && Array.isArray(response.data.revenueForecasts)) {
         setMonthlyData(response.data.revenueForecasts);
         onDataUpdate(response.data.revenueForecasts);
-        await fetchRevenueForecasts();
+        await fetchData();
       } else {
         throw new Error('Updated forecasts not found in response');
       }
     } catch (err) {
       setError(`Failed to delete revenue forecast: ${err.message}`);
     }
-  };
+  }, [projectId, onDataUpdate, fetchData, setError]);
 
+  useEffect(() => {
+    setHandleDelete(() => handleDelete);
+  }, [setHandleDelete, handleDelete]);
   if (isLoading) {
     return <div>Loading revenue forecasts...</div>;
   }
@@ -306,6 +309,7 @@ function Entryitems() {
   const [liabilities, setLiabilities] = useState([{ description: '', amount: '' }]);
   const [cashFlow, setCashFlow] = useState([{ description: '', amount: '' }]);
   const [revenueForecasts, setRevenueForecasts] = useState([]);
+  const [handleDeleteRevenueForecast, setHandleDeleteRevenueForecast] = useState(() => async () => {});
   const [variableCosts, setVariableCosts] = useState([{ description: '', amount: '' }]);
   
   
@@ -313,7 +317,8 @@ function Entryitems() {
   const [activeTab, setActiveTab] = useState('nav-startup');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [dataModified, setDataModified] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [, setDataModified] = useState(false);
   // State for Employee Payroll Modal
   const [employeePayrolls, setEmployeePayrolls] = useState([]);
   const [showModalPayroll, setShowModalPayroll] = useState(false);
@@ -334,7 +339,7 @@ function Entryitems() {
   const [editingIndex, setEditingIndex] = useState(null);
   // const tabs = ['nav-startup', 'nav-funding', 'nav-operations', 'nav-payroll'];
   const [initialSubmitted, setInitialSubmitted] = useState(null);
-  
+   const [showWarning, setShowWarning] = useState(false);
   // =============================================================================
   // Helper Functions
   // =============================================================================
@@ -361,7 +366,7 @@ function Entryitems() {
         validate: item => item.designation && item.salary && item.months.length > 0,
       },
     ];
-    
+  
     for (const section of sections) {
       let validItems;
       if (section.validate) {
@@ -373,17 +378,21 @@ function Entryitems() {
       }
   
       if (validItems.length === 0) {
-        return `Please fill at least one item in ${section.name}.`;
+        setError(`Please fill at least one item correctly in ${section.name}.`);
+        setShowError(true);
+        return false; // Invalid data
       }
     }
-    
-        return null; // Data is valid
-      }, [startupCosts, startupCapital, capitalWorkProgress, startingOperations, fixedExpenses, assets, liabilities, capitalCosts, cashFlow, revenueForecasts, variableCosts, employeePayrolls]);
-  // Add a new item to a specific input section
-  const handleAddItem = (setFunction) => {
-    setFunction(prevItems => [...prevItems, { description: '', amount: '' }]);
-    setDataModified(true);
-  };
+  
+    setError(null); // Clear any previous error
+    return true; // Data is valid
+  }, [startupCosts, startupCapital, capitalWorkProgress, startingOperations, fixedExpenses, assets, liabilities, capitalCosts, cashFlow, revenueForecasts, variableCosts, employeePayrolls]);
+  
+      // Add a new item to a specific input section
+      const handleAddItem = (setFunction) => {
+        setFunction(prevItems => [...prevItems, { description: '', amount: '' }]);
+        setDataModified(true); // Set the dataModified flag but don't trigger validation
+      };
 
   // Format number with commas
   const formatNumber = (num) => {
@@ -400,6 +409,7 @@ function Entryitems() {
     // Combine with decimal part if it exists
     return parts.length > 1 ? formattedIntegerPart + '.' + parts[1] : formattedIntegerPart;
 };
+
 
 
 
@@ -524,11 +534,142 @@ function Entryitems() {
   };
   
 
-  // Clear all items in a specific input section
-  const handleClearAll = (setFunction) => {
-    setFunction([{ description: '', amount: '' }]);
-  };
-  
+// Clear all items in a specific input section
+const handleClearAll = (setFunction) => {
+  setShowWarning(true);
+};
+
+const handleWarningConfirm = async () => {
+  setShowWarning(false);
+
+  try {
+    await Promise.all([
+      clearDataForSection(setStartupCosts, 'startup_costs', 'startup-cost'),
+      clearDataForSection(setStartupCapital, 'startup_capital', 'startup-cost'),
+      clearDataForSection(setCapitalWorkProgress, 'capital_work_progress', 'startup-cost'),
+      clearDataForSection(setStartingOperations, 'starting_operations', 'startup-cost'),
+    ]);
+
+    await Promise.all([
+      clearDataForSection(setAssets, 'assets', 'funding'),
+      clearDataForSection(setLiabilities, 'liabilities', 'funding'),
+      clearDataForSection(setCashFlow, 'cash_flow', 'funding'),
+      clearSpecialSection(setFixedExpenses, 'fixed_expenses', handleDeleteFixedExpense),
+      clearSpecialSection(setCapitalCosts, 'capital_costs', handleDeleteCapitalCost),
+      clearRevenueSection(setRevenueForecasts, 'revenue_forecasts', handleDeleteRevenueForecast),
+      clearEmployeePayrollSection(setEmployeePayrolls, handleDeleteEmployeePayroll),
+    ]);
+
+    await clearDataForSection(setVariableCosts, 'variable_costs', 'operations');
+
+    // Reset the initial submission status after clearing all data
+    setInitialSubmitted(false); // Set initialSubmitted to false
+
+    await Promise.all([
+      fetchProjectData(),
+      fetchFundingData(),
+      fetchOperationsFinanceData(),
+    ]);
+  } catch (error) {
+    setError('Failed to clear all data. Please try again.');
+  }
+};
+
+const clearDataForSection = async (setter, tableName, endpoint) => {
+  try {
+    const itemsToDelete = await new Promise(resolve => {
+      setter(prevState => {
+        const toDelete = prevState.filter(item => item.id != null);
+        resolve(toDelete);
+        return prevState; // Don't modify the state yet
+      });
+    });
+
+    if (itemsToDelete.length === 0) {
+      return;
+    }
+
+    const deletePromises = itemsToDelete.map(item => 
+      authenticatedRequest(`http://localhost:8000/${endpoint}/delete-item/${item.id}/${projectId}?table=${tableName}`, 'DELETE')
+    );
+
+    await Promise.all(deletePromises);
+
+    setter(() => [{ description: '', amount: '' }]);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const clearSpecialSection = async (setter, sectionName, deleteHandler) => {
+  try {
+    const itemsToDelete = await new Promise(resolve => {
+      setter(prevState => {
+        resolve([...prevState]);
+        return prevState; // Don't modify the state yet
+      });
+    });
+
+    if (itemsToDelete.length === 0) {
+      return;
+    }
+
+    for (let i = itemsToDelete.length - 1; i >= 0; i--) {
+      await deleteHandler(i);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const clearRevenueSection = async (setter, sectionName, deleteHandler) => {
+  try {
+    const itemsToDelete = await new Promise(resolve => {
+      setter(prevState => {
+        resolve([...prevState]);
+        return prevState; // Don't modify the state yet
+      });
+    });
+
+    if (itemsToDelete.length === 0) {
+      return;
+    }
+
+    for (let item of itemsToDelete) {
+      if (item.id) {
+        await deleteHandler(item.id);
+      }
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const clearEmployeePayrollSection = async (setter, deleteHandler) => {
+  try {
+    const itemsToDelete = await new Promise(resolve => {
+      setter(prevState => {
+        resolve([...prevState]);
+        return prevState; // Don't modify the state yet
+      });
+    });
+
+    if (itemsToDelete.length === 0) {
+      return;
+    }
+
+    for (let i = itemsToDelete.length - 1; i >= 0; i--) {
+      await deleteHandler(i);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+const handleWarningCancel = () => {
+  setShowWarning(false);
+};
+
   // Navigate to the next tab
   const handleNextTab = () => {
     const tabs = ['nav-startup', 'nav-funding', 'nav-operations', 'nav-payroll'];
@@ -923,36 +1064,29 @@ const handleSaveCapitalCost = async () => {
  } finally {
    setIsLoading(false);
  }
-}, [projectId]);
+  }, [projectId]);
 
-useEffect(() => {
-  // Only check the status if it hasn't been determined yet
-  if (projectId && initialSubmitted === null) {
-    checkInitialSubmitStatus();
-  }
-}, [projectId, checkInitialSubmitStatus, initialSubmitted]);
-
-// ... validateData function ...
-
-useEffect(() => {
-  if (dataModified) {
-    const validationError = validateData();
-    if (validationError) {
-      setError(validationError);
-    } else {
-      setError(null);
+  useEffect(() => {
+    // Only check the status if it hasn't been determined yet
+    if (projectId && initialSubmitted === null) {
+      checkInitialSubmitStatus();
     }
-    setDataModified(false);
-  }
-}, [dataModified, validateData]);
+  }, [projectId, checkInitialSubmitStatus, initialSubmitted]);
+
+
 
   const handleInitialSubmit = async () => {
-    setError(null); 
-    const validationError = validateData();
-    if (validationError) {
-      setError(validationError);
+    setError(null);
+    setShowError(false);
+      
+    if (!validateData()) { // Stop submission if validation fails
+      // Automatically hide the error after 5 seconds
+      setTimeout(() => {
+        setShowError(false);
+      }, 5000);
       return;
     }
+  
     setIsLoading(true);
     try {
       if (!projectId) {
@@ -960,37 +1094,10 @@ useEffect(() => {
       }
   
       // Prepare all data
-      const startupData = {
-        projectId,
-        startupCosts,
-        startupCapital,
-        capitalWorkProgress,
-        startingOperations
-      };
-  
-      const fundingData = {
-        userId: user.id,
-        projectId,
-        fixedExpenses: fixedExpenses.filter(item => item.description && item.amount && item.months.length > 0),
-        assets: assets.filter(item => item.description && item.amount),
-        liabilities: liabilities.filter(item => item.description && item.amount),
-        capitalCosts: capitalCosts.filter(item => item.description && item.amount && item.years.length > 0),
-        cashFlow: cashFlow.filter(item => item.description && item.amount),
-      };
-  
-      const operationsData = {
-        projectId,
-        revenueForecasts,
-        variableCosts: variableCosts.filter(item => item.description && item.amount),
-      };
-  
-      const payrollData = {
-        userId: user.id,
-        projectId,
-        employeePayrolls: employeePayrolls.filter(payroll => 
-          payroll.designation && payroll.salary && payroll.months.length > 0
-        ),
-      };
+      const startupData = { projectId, startupCosts, startupCapital, capitalWorkProgress, startingOperations };
+      const fundingData = { userId: user.id, projectId, fixedExpenses, assets, liabilities, capitalCosts, cashFlow };
+      const operationsData = { projectId, revenueForecasts, variableCosts };
+      const payrollData = { userId: user.id, projectId, employeePayrolls };
   
       // Submit data to existing endpoints without triggering recalculations
       await authenticatedRequest('http://localhost:8000/startup-cost/startup-data', 'POST', startupData);
@@ -998,9 +1105,9 @@ useEffect(() => {
       await authenticatedRequest('http://localhost:8000/operations/submit-data', 'POST', operationsData);
       await authenticatedRequest('http://localhost:8000/payroll/submit-data', 'POST', payrollData);
   
-      // // Trigger recalculations only once after all data is submitted
-      // await triggerAllRecalculations(projectId);
+      // Trigger recalculations only once after all data is submitted
       await authenticatedRequest(`http://localhost:8000/project/${projectId}/mark-initial-submit-complete`, 'POST');
+      
       // Refresh all data
       await fetchProjectData();
       await fetchFundingData();
@@ -1011,11 +1118,16 @@ useEffect(() => {
     } catch (err) {
       console.error('Error submitting data:', err);
       setError(err.message || 'An error occurred while submitting the data. Please try again.');
+      setShowError(true);
+      // Automatically hide the error after 5 seconds
+      setTimeout(() => {
+        setShowError(false);
+      }, 5000);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const triggerAllRecalculations = async (projectId) => {
     try {
       const endpoints = [
@@ -1057,39 +1169,52 @@ useEffect(() => {
   
   // Submit startup cost data to the server
   const handleSubmit = async () => {
-    setIsLoading(true);
     setError(null);
+    setShowError(false);
+      
+    if (!validateData()) { // Stop submission if validation fails
+      // Automatically hide the error after 5 seconds
+      setTimeout(() => {
+        setShowError(false);
+      }, 5000);
+      return;
+    }
   
+    setIsLoading(true);
     try {
       if (!projectId) {
         throw new Error('Project ID is not available. Please try again later.');
       }
-      const requestData = {
-        projectId,
-        startupCosts,
-        startupCapital,
-        capitalWorkProgress,
-        startingOperations
-      };
-      
+  
+      const requestData = { projectId, startupCosts, startupCapital, capitalWorkProgress, startingOperations };
       const response = await authenticatedRequest('http://localhost:8000/startup-cost/startup-data', 'POST', requestData);
+      
       console.log('Server response:', response);
       await triggerAllRecalculations(projectId);
       fetchProjectData(); // Refresh data after submission
     } catch (err) {
       console.error('Error submitting data:', err);
       setError(err.message || 'An error occurred while submitting the data. Please try again.');
+      setShowError(true);
     } finally {
       setIsLoading(false);
     }
   };
 
-
   // Submit funding data to the server
   const handleFundingSubmit = async () => {
-    setIsLoading(true);
     setError(null);
+    setShowError(false);
+      
+    if (!validateData()) { // Stop submission if validation fails
+      // Automatically hide the error after 5 seconds
+      setTimeout(() => {
+        setShowError(false);
+      }, 5000);
+      return;
+    }
   
+    setIsLoading(true);
     try {
       if (!projectId) {
         throw new Error('Project ID is not available. Please try again later.');
@@ -1104,42 +1229,50 @@ useEffect(() => {
         capitalCosts: capitalCosts.filter(item => item.description && item.amount && item.years.length > 0),
         cashFlow: cashFlow.filter(item => item.description && item.amount),
       };
-  
+      
       console.log('Submitting request with data:', requestData);
       const response = await authenticatedRequest('http://localhost:8000/funding/funding-data', 'POST', requestData);
-  
+      
       console.log('Server response:', response);
       await triggerAllRecalculations(projectId);
       fetchFundingData(); // Refresh data after submission
-  
     } catch (err) {
       console.error('Error submitting funding data:', err);
       setError(err.message || 'An error occurred while submitting the funding data. Please try again.');
+      setShowError(true);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   // Submit operations and finance data to the server
   const handleOperationsFinanceSubmit = async () => {
-    setIsLoading(true);
     setError(null);
-
+    setShowError(false);
+      
+    if (!validateData()) { // Stop submission if validation fails
+      // Automatically hide the error after 5 seconds
+      setTimeout(() => {
+        setShowError(false);
+      }, 5000);
+      return;
+    }
+  
+    setIsLoading(true);
     try {
       if (!projectId) {
         throw new Error('Project ID is not available. Please try again later.');
       }
-
+  
       const requestData = {
         projectId,
         revenueForecasts,
         variableCosts: variableCosts.filter(item => item.description && item.amount),
       };
-
+      
       const response = await authenticatedRequest('http://localhost:8000/operations/submit-data', 'POST', requestData);
-
+  
       if (response.data && response.data.message) {
-        // Optionally, you can add a success message here
         console.log('Data submitted successfully:', response.data.message);
         await triggerAllRecalculations(projectId);
         fetchOperationsFinanceData(); // Refresh data after submission
@@ -1149,10 +1282,12 @@ useEffect(() => {
     } catch (err) {
       console.error('Error submitting operations and finance data:', err);
       setError(err.message || 'An error occurred while submitting the data. Please try again.');
+      setShowError(true);
     } finally {
       setIsLoading(false);
     }
   };
+  
   const handleRevenueDataUpdate = useCallback((data) => {
     setRevenueForecasts(data);
   }, []);
@@ -1303,9 +1438,18 @@ const handleSaveEmployeePayroll = async () => {
   // Submit payroll data to the server
 
   const handlePayrollSubmit = async () => {
-    setIsLoading(true);
     setError(null);
+    setShowError(false);
+      
+    if (!validateData()) { // Stop submission if validation fails
+      // Automatically hide the error after 5 seconds
+      setTimeout(() => {
+        setShowError(false);
+      }, 5000);
+      return;
+    }
   
+    setIsLoading(true);
     try {
       if (!projectId) {
         throw new Error('Project ID is not available. Please try again later.');
@@ -1318,21 +1462,23 @@ const handleSaveEmployeePayroll = async () => {
           payroll.designation && payroll.salary && payroll.months.length > 0
         ),
       };
-  
+      
       console.log('Submitting request with data:', requestData);
       const response = await authenticatedRequest('http://localhost:8000/payroll/submit-data', 'POST', requestData);
+      
       console.log('Server response:', response);
       await triggerAllRecalculations(projectId);
-      setEmployeePayrolls(response.data.employee_payrolls);     
-       fetchPayrollData(); // Refresh data after submission
-  
+      setEmployeePayrolls(response.data.employee_payrolls);
+      fetchPayrollData(); // Refresh data after submission
     } catch (err) {
       console.error('Error submitting payroll data:', err);
       setError(err.message || 'An error occurred while submitting the payroll data. Please try again.');
+      setShowError(true);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
 
   // =============================================================================
@@ -1341,6 +1487,28 @@ const handleSaveEmployeePayroll = async () => {
 
   return (
     <div className="entryitems d-flex flex-column justify-content-center">
+      {/* Warning Window */}
+      {showWarning && (
+        <div className="warning-window">
+          <div className="warning-content">
+            <p>Are you sure you want to permanently delete all data from all tabs?</p>
+            <div className="warning-buttons">
+              <button onClick={handleWarningConfirm}>Confirm</button>
+              <button onClick={handleWarningCancel}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+   {/* Floating Error Message */}
+   {showError && error && (
+        <div className="floating-error">
+          <span>{error}</span>
+          <button className="close-error-btn" onClick={() => setShowError(false)}>
+            &times;
+          </button>
+        </div>
+      )}
       {/* Navigation Tabs */}
       <nav className="nav nav-tabs justify-content-center">
         <div className="nav nav-tabs" id="nav-tab" role="tablist">
@@ -1350,7 +1518,6 @@ const handleSaveEmployeePayroll = async () => {
           <button className={`nav-link ${activeTab === 'nav-payroll' ? 'active' : ''}`} id="nav-payroll-tab" data-bs-toggle="tab" data-bs-target="#nav-payroll" type="button" role="tab" aria-controls="nav-payroll" aria-selected={activeTab === 'nav-payroll'}>Employee Payrolls</button>
         </div>
       </nav>
-
       {/* Tab Content */}
       <div className="tab-content" id="nav-tabContent">
         {/* Startup Costs Tab */}
@@ -1407,15 +1574,10 @@ const handleSaveEmployeePayroll = async () => {
               </div>
             </div>
           </div>
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
+          {/*   */}
 
           <div className="d-flex justify-content-center">
-              <button className="submit-btn-last btn mx-2" onClick={() => {
-                setStartupCosts([]);
-                setStartupCapital([]);
-                setCapitalWorkProgress([]);
-                setStartingOperations([]);
-              }}>Clear All</button>
+          <button className="submit-btn-last btn mx-2" onClick={handleClearAll}>Clear All</button>
             {initialSubmitted && (
                   <button className="submit-btn-last btn mx-2" onClick={handleSubmit} disabled={isLoading}>
                     {isLoading ? 'Submitting...' : 'Submit Startup Data'}
@@ -1558,14 +1720,7 @@ const handleSaveEmployeePayroll = async () => {
               </div>
             </div>
             <div className="d-flex justify-content-center">
-              <button className="submit-btn-last btn mx-2" onClick={() => {
-                handleClearAll(setAssets);
-                handleClearAll(setLiabilities);
-                handleClearAll(setCashFlow);
-                setCapitalCosts([]);
-               setFixedExpenses([]);
-
-              }}>Clear All</button>
+            <button className="submit-btn-last btn mx-2" onClick={handleClearAll}>Clear All</button>
               {initialSubmitted && (
                 <button className="submit-btn-last btn mx-2" onClick={handleFundingSubmit} disabled={isLoading}>
                   {isLoading ? 'Submitting...' : 'Submit Funding Data'}
@@ -1578,26 +1733,26 @@ const handleSaveEmployeePayroll = async () => {
 
         {/* Funding Modal */}
         <Modal show={showModal} onHide={handleModalClose}>
-  <Modal.Header closeButton>
-    <Modal.Title>
-      {editingIndex !== null ? 'Edit' : 'Add'}{' '}
-      {modalType === 'fixedExpense' ? 'Monthly Expense' : 'Capital Cost'}
-    </Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <Form>
-      <Form.Group className="mb-3">
-        <Form.Label>Description</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter description"
-          value={modalDescription}
-          onChange={(e) => {
-            setError(''); // Clear error when input changes
-            handleModalInputChange('description', e.target.value);
-          }}
-        />
-      </Form.Group>
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {editingIndex !== null ? 'Edit' : 'Add'}{' '}
+            {modalType === 'fixedExpense' ? 'Monthly Expense' : 'Capital Cost'}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="Enter description"
+            value={modalDescription}
+            onChange={(e) => {
+              setError(''); // Clear error when input changes
+              handleModalInputChange('description', e.target.value);
+            }}
+          />
+        </Form.Group>
       <Form.Group className="mb-3">
         <Form.Label>Amount</Form.Label>
         <Form.Control
@@ -1676,23 +1831,23 @@ const handleSaveEmployeePayroll = async () => {
     </Form>
 
     {error && <p className="error-message" style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={handleModalClose}>
-      Close
-    </Button>
-    <Button
-      variant="primary"
-      onClick={
-        modalType === 'fixedExpense'
-          ? handleSaveFixedExpense
-          : handleSaveCapitalCost
-      }
-    >
-      {editingIndex !== null ? 'Update' : 'Add'}
-    </Button>
-  </Modal.Footer>
-</Modal>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleModalClose}>
+            Close
+          </Button>
+          <Button
+            variant="primary"
+            onClick={
+              modalType === 'fixedExpense'
+                ? handleSaveFixedExpense
+                : handleSaveCapitalCost
+            }
+          >
+            {editingIndex !== null ? 'Update' : 'Add'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
 
         {/* Operations & Finance Tab */}
@@ -1705,6 +1860,7 @@ const handleSaveEmployeePayroll = async () => {
               onDataUpdate={handleRevenueDataUpdate} 
               projectId={projectId} 
               fetchData={fetchOperationsFinanceData} 
+              setHandleDelete={setHandleDeleteRevenueForecast}
             />
                       </div>
           <div className="col-6">
@@ -1724,7 +1880,7 @@ const handleSaveEmployeePayroll = async () => {
         </div>
 
         <div className="d-flex justify-content-center">
-          <button className="submit-btn-last btn mx-2" onClick={() => handleClearAll(setVariableCosts)}>Clear All</button>
+        <button className="submit-btn-last btn mx-2" onClick={handleClearAll}>Clear All</button>
           {initialSubmitted && (
         <button className="submit-btn-last btn mx-2" onClick={handleOperationsFinanceSubmit} disabled={isLoading}>
           {isLoading ? 'Submitting...' : 'Submit Operations Data'}
@@ -1732,7 +1888,7 @@ const handleSaveEmployeePayroll = async () => {
           )}
           <button className="submit-btn-last btn mx-2" onClick={handleNextTab}>Next</button>
         </div>
-        {error && <div className="alert alert-danger mt-3">{error}</div>}
+        {/*   */}
       </div>
     </div>
 
@@ -1804,8 +1960,8 @@ const handleSaveEmployeePayroll = async () => {
               </div>
             </div>
             <div className="d-flex justify-content-center mt-3">
-              <button className="submit-btn-last btn mx-2" onClick={() => setEmployeePayrolls([])}>Clear All</button>
-                      {!initialSubmitted && (
+            <button className="submit-btn-last btn mx-2" onClick={handleClearAll}>Clear All</button>
+            {!initialSubmitted && (
                 <button className="submit-btn-last btn mx-2" onClick={handleInitialSubmit} disabled={isLoading}>
                   {isLoading ? 'Submitting...' : 'Submit All Data'}
                 </button>
@@ -1819,7 +1975,7 @@ const handleSaveEmployeePayroll = async () => {
               )}
               {/* <button className="submit-btn-last btn mx-2" onClick={handleNextTab}>Next</button> */}
             </div>
-            {error && <div className="alert alert-danger mt-3">{error}</div>}
+            {/*   */}
           </div>
         </div>
 

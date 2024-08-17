@@ -1,4 +1,5 @@
 import supabase from '../../../config/supabase.js';
+import logger from '../../../../logger.js';
 
 const FundingModel = {
   async getProjectData(projectId, authUserId) {
@@ -214,7 +215,7 @@ const FundingModel = {
       .select();
 
     if (error) {
-      console.error('Error updating capital cost:', error);
+      logger.error('Error updating capital cost:', error);
       throw error;
     }
 
@@ -226,7 +227,7 @@ const FundingModel = {
       .order('created_at');
 
     if (fetchError) {
-      console.error('Error fetching all capital costs:', fetchError);
+      logger.error('Error fetching all capital costs:', fetchError);
       throw fetchError;
     }
 

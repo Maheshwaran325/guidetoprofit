@@ -1,4 +1,5 @@
 import FundingModel from './fundingModel.js';
+import logger from '../../../../logger.js';
 
 const FundingController = {
   async getProjectData(req, res) {
@@ -8,7 +9,7 @@ const FundingController = {
       const data = await FundingModel.getProjectData(projectId, authUserId);
       res.status(200).json(data);
     } catch (error) {
-      console.error('Error in getProjectData:', error);
+      logger.error('Error in getProjectData:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -24,7 +25,7 @@ const FundingController = {
         data: result
       });
     } catch (error) {
-      console.error('Error in createOrUpdateFundingData:', error);
+      logger.error('Error in createOrUpdateFundingData:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -40,7 +41,7 @@ const FundingController = {
         fixed_expenses: result
       });
     } catch (error) {
-      console.error('Error in addFixedExpense:', error);
+      logger.error('Error in addFixedExpense:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -56,7 +57,7 @@ const FundingController = {
         capital_costs: result
       });
     } catch (error) {
-      console.error('Error in addCapitalCost:', error);
+      logger.error('Error in addCapitalCost:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -72,7 +73,7 @@ const FundingController = {
         fixed_expenses: result
       });
     } catch (error) {
-      console.error('Error in updateFixedExpense:', error);
+      logger.error('Error in updateFixedExpense:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -112,7 +113,7 @@ const FundingController = {
         fixed_expenses: result
       });
     } catch (error) {
-      console.error('Error in deleteFixedExpense:', error);
+      logger.error('Error in deleteFixedExpense:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -128,7 +129,7 @@ const FundingController = {
         capital_costs: result
       });
     } catch (error) {
-      console.error('Error in deleteCapitalCost:', error);
+      logger.error('Error in deleteCapitalCost:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -141,7 +142,7 @@ const FundingController = {
       await FundingModel.deleteItem(itemId, table, projectId, authUserId);
       res.status(200).json({ message: 'Item deleted successfully' });
     } catch (error) {
-      console.error('Error in deleteItem:', error);
+      logger.error('Error in deleteItem:', error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -176,7 +177,7 @@ export default FundingController;
 //         }
 //       });
 //     } catch (error) {
-//       console.error('Error in createFundingData:', error);
+//       logger.error('Error in createFundingData:', error);
 //       res.status(500).json({ error: error.message, details: error.details });
 //     }
 //   }

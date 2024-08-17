@@ -1,5 +1,6 @@
 import cogsModelOut from './cogsModel.js';
 import calculateVariableCosts from './cogsClac.js';
+import logger from '../../../../logger.js';
 
 const cogsControllerOut = {
   async getCalculations(req, res) {
@@ -20,7 +21,7 @@ const cogsControllerOut = {
         calculations
       });
     } catch (error) {
-      console.error('Error in getCalculations:', error);
+      logger.error('Error in getCalculations:', error);
       res.status(500).json({ error: error.message || 'An unexpected error occurred' });
     }
   },
@@ -40,7 +41,7 @@ const cogsControllerOut = {
         calculations: existingCalculations
       });
     } catch (error) {
-      console.error('Error in getProjectData:', error);
+      logger.error('Error in getProjectData:', error);
       res.status(500).json({ error: error.message || 'An unexpected error occurred' });
     }
   }

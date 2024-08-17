@@ -22,6 +22,7 @@ ChartJS.register(
 
 const FinancialDashboard = React.memo(() => {
   const [dashboardData, setDashboardData] = useState(null);
+  const [startupCosts, setStartupCosts] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { projectId } = useProject();
@@ -35,13 +36,21 @@ const FinancialDashboard = React.memo(() => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/financial-dashboard/data/${projectId}`);
-      
-      if (!response || !response.data) {
-        throw new Error('No data received from the server');
+      const [dashboardResponse, startupCostsResponse] = await Promise.all([
+        authenticatedRequest(`http://localhost:8000/financial-dashboard/data/${projectId}`),
+        authenticatedRequest(`http://localhost:8000/startup-cost-out/data/${projectId}`)
+      ]);
+
+      if (!dashboardResponse || !dashboardResponse.data) {
+        throw new Error('No dashboard data received from the server');
       }
-  
-      setDashboardData(response.data);
+
+      if (!startupCostsResponse || !startupCostsResponse.data) {
+        throw new Error('No startup costs data received from the server');
+      }
+
+      setDashboardData(dashboardResponse.data);
+      setStartupCosts(startupCostsResponse.data.inputData);
     } catch (error) {
       console.error('Error fetching data:', error);
       setError(`Failed to fetch data: ${error.message}. Please try again.`);
@@ -177,6 +186,17 @@ const FinancialDashboard = React.memo(() => {
         <div className="alert alert-danger" role="alert">
           {error}
         </div>
+      </div>
+    );
+  }
+  if (!startupCosts || !startupCosts.startup_costs || startupCosts.startup_costs.length === 0) {
+    return (
+      <div className="container mt-5 text-center">
+        <h3>No financial data available</h3>
+        <p>Please fill out the necessary forms to view your financial dashboard.</p>
+        <Button className="btn-add" onClick={() => navigate('/entrylog')}>
+          Go to Entry Log
+        </Button>
       </div>
     );
   }

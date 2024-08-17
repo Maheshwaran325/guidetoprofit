@@ -1,4 +1,5 @@
 import supabase from '../../../config/supabase.js';
+import logger from '../../../../logger.js';
 
 const breakEvenModel = {
   async getInputData(projectId) {
@@ -37,7 +38,7 @@ const breakEvenModel = {
       .limit(1);
 
     if (breakEvenError) {
-      console.error('Error fetching break-even calculations:', breakEvenError);
+      logger.error('Error fetching break-even calculations:', breakEvenError);
       throw new Error('Error fetching break-even calculations');
     }
 

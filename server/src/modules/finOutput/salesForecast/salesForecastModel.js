@@ -1,4 +1,5 @@
 import supabase from '../../../config/supabase.js';
+import logger from '../../../../logger.js';
 
 const salesForecastModel = {
   async getSessionInputData(projectId) {
@@ -33,7 +34,7 @@ const salesForecastModel = {
       .select();
   
     if (error) {
-      console.error('Error saving calculations:', error);
+      logger.error('Error saving calculations:', error);
       throw error;
     }
   

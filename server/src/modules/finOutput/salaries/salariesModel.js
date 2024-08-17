@@ -1,4 +1,5 @@
 import supabase from '../../../config/supabase.js';
+import logger from '../../../../logger.js';
 
 const salariesModel = {
   async getProjectInputData(projectId) {
@@ -28,7 +29,7 @@ const salariesModel = {
       .select();
   
     if (error) {
-      console.error('Error upserting calculations:', error);
+      logger.error('Error upserting calculations:', error);
       throw error;
     }
   

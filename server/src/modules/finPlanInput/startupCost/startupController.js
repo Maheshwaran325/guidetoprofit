@@ -1,4 +1,5 @@
 import StartupModel from './startupModel.js';
+import logger from '../../../../logger.js';
 
 const StartupController = {
   async getProjectData(req, res) {
@@ -8,7 +9,7 @@ const StartupController = {
       const data = await StartupModel.getProjectData(projectId, authUserId);
       res.status(200).json(data);
     } catch (error) {
-      console.error('Error in getProjectData:', error);
+      logger.error('Error in getProjectData:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -24,7 +25,7 @@ const StartupController = {
         data: result
       });
     } catch (error) {
-      console.error('Error in createOrUpdateStartupData:', error);
+      logger.error('Error in createOrUpdateStartupData:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -37,7 +38,7 @@ const StartupController = {
       await StartupModel.deleteItem(itemId, table, projectId, authUserId);
       res.status(200).json({ message: 'Item deleted successfully' });
     } catch (error) {
-      console.error('Error in deleteItem:', error);
+      logger.error('Error in deleteItem:', error);
       res.status(500).json({ error: error.message });
     }
   }
@@ -69,7 +70,7 @@ export default StartupController;
 //         }
 //       });
 //     } catch (error) {
-//       console.error('Error in createStartupData:', error);
+//       logger.error('Error in createStartupData:', error);
 //       res.status(500).json({ error: error.message, details: error.details });
 //     }
 //   }

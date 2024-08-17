@@ -6,11 +6,12 @@ import { authenticatedRequest } from '../../utility/authenticatedRequestUtility'
 import { useProject } from '../../ProjectContext';
 ChartJS.register(BarElement, Tooltip, Legend, CategoryScale, LinearScale);
 
-const FinancialAnalysis = ({ sessionId }) => {
+const FinancialAnalysis =  () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { projectId } = useProject();
+  const [startupCosts, setStartupCosts] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,15 +24,19 @@ const FinancialAnalysis = ({ sessionId }) => {
       setError(null);
 
       try {
-        const response = await authenticatedRequest(`http://localhost:8000/funding-out/calculations/${projectId}`);
-          if (!response || !response.data) {
-          throw new Error('Network response was not ok');
+        const [financialResponse, startupCostsResponse] = await Promise.all([
+          authenticatedRequest(`http://localhost:8000/funding-out/calculations/${projectId}`),
+          authenticatedRequest(`http://localhost:8000/startup-cost-out/data/${projectId}`)
+        ]);
+
+        if (!financialResponse || !financialResponse.data || !startupCostsResponse || !startupCostsResponse.data) {
+          throw new Error('Failed to fetch data.');
         }
 
-        setData(response.data);
+        setData(financialResponse.data);
+        setStartupCosts(startupCostsResponse.data.inputData);
       } catch (err) {
-        // console.error('Fetch error:', err);
-        // setError(err.message);
+        setError('Failed to fetch data. Please try again.');
       } finally {
         setLoading(false);
       }
@@ -67,7 +72,15 @@ const FinancialAnalysis = ({ sessionId }) => {
       </div>
     );
   }
-
+  if (!startupCosts || !startupCosts.startup_costs || startupCosts.startup_costs.length === 0) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning" role="alert">
+        No project data available. Please submit the form first.
+        </div>
+      </div>
+    );
+  }
   if (!data || !data.yearlyResults || data.yearlyResults.length === 0) {
     return (
       <div className="container mt-5">

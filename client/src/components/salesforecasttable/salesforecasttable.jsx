@@ -24,8 +24,8 @@ const SalesForecastTable = () => {
       const response = await authenticatedRequest(`http://localhost:8000/sales-forecast/data/${projectId}`);
       setForecastData(response.data);
     } catch (error) {
-      // console.error('Error fetching forecast data:', error);
-      // setError('Failed to fetch data. Please try again.');
+      console.error('Error fetching forecast data:', error);
+      setError(' No project data available. Please submit the form first.');
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +100,15 @@ const SalesForecastTable = () => {
   }
 
   const { revenue_forecasts, calculations } = forecastData;
-
+  if (!calculations) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning" role="alert">
+          No calculations available.
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="container">
       <h4 className="text-center">Sales Forecasting</h4>

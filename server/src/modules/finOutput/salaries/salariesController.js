@@ -1,5 +1,6 @@
 import salariesModel from './salariesModel.js';
 import calculateSalaries from './salariesCalc.js';
+import logger from '../../../../logger.js';
 
 const salariesController = {
   async getCalculations(req, res) {
@@ -21,7 +22,7 @@ const salariesController = {
       });
 
     } catch (error) {
-      console.error('Error in getCalculations:', error);
+      logger.error('Error in getCalculations:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -45,7 +46,7 @@ const salariesController = {
         calculations: existingCalculations
       });
     } catch (error) {
-      console.error('Error in getProjectData:', error);
+      logger.error('Error in getProjectData:', error);
       res.status(500).json({ error: error.message || 'An unexpected error occurred' });
     }
   }

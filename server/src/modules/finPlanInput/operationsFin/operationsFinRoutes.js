@@ -14,13 +14,3 @@ router.delete('/delete-item/:itemId/:projectId', authenticateToken, OperationsFi
 
 export default router;
 
-
-// import express from 'express';
-// import OperationsFinanceController from './operationsFinController.js';
-// import { authenticateToken } from '../../../middleware/authMiddleware.js';
-
-// const router = express.Router();
-
-// router.post('/data', authenticateToken,  OperationsFinanceController.createOperationsFinanceData);
-
-// export default router;

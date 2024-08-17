@@ -1,5 +1,6 @@
 import fundingModel from './fundingModel.js';
 import fundingCalc from './fundingCalc.js';
+import logger from '../../../../logger.js';
 
 const fundingController = {
   async getCalculations(req, res) {
@@ -45,7 +46,7 @@ const fundingController = {
 
       res.status(200).json(finalCalculations);
     } catch (error) {
-      console.error('Error in getCalculations:', error);
+      logger.error('Error in getCalculations:', error);
       res.status(500).json({ error: error.message, stack: error.stack });
     }
   },
@@ -66,7 +67,7 @@ const fundingController = {
   
       res.status(200).json(latestCalculation);
     } catch (error) {
-      console.error('Error in getfundCalculations:', error);
+      logger.error('Error in getfundCalculations:', error);
       res.status(500).json({ error: error.message, stack: error.stack });
     }
   }
@@ -123,7 +124,7 @@ export default fundingController;
 //       console.log('Final Response:', response);
 //       res.status(200).json(response);
 //     } catch (error) {
-//       console.error('Error in getCalculations:', error);
+//       logger.error('Error in getCalculations:', error);
 //       res.status(500).json({ error: error.message, stack: error.stack });
 //     }
 //   }

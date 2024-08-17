@@ -1,4 +1,5 @@
 import fundingModel from '../funding/fundingModel.js';
+import logger from '../../../../logger.js';
 
 const fundingCalc = {
   calculateTotalFixedExpenses(totalFixedExpenses) {
@@ -11,7 +12,7 @@ const fundingCalc = {
 
   calculateCapitalCostsForYear(capitalCosts, year) {
     if (!Array.isArray(capitalCosts)) {
-      console.error('Capital costs data is not an array');
+      logger.error('Capital costs data is not an array');
       return 0;
     }
     return capitalCosts.reduce((total, cost) => {
@@ -60,7 +61,7 @@ const fundingCalc = {
         avg_cost_per_unit = previousYear.avg_cost_per_unit;
         break;
       default:
-        console.error(`Year ${year} is not supported`);
+        logger.error(`Year ${year} is not supported`);
         return {};
     }
 

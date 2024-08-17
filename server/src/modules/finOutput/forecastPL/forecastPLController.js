@@ -1,5 +1,6 @@
 import forecastPLModel from './forecastPLModel.js';
 import forecastPLCalc from './forecastPLCalc.js';
+import logger from '../../../../logger.js';
 
 const forecastPLController = {
   async getCalculations(req, res) {
@@ -26,25 +27,24 @@ const forecastPLController = {
         calculations: savedCalculations
       });
     } catch (error) {
-      console.error('Error in getCalculations:', error);
+      logger.error('Error in getCalculations:', error);
       res.status(500).json({ error: error.message, stack: error.stack });
     }
   },
-
   async getProjectData(req, res) {
     try {
       const { projectId } = req.params;
-     
+  
       // Fetch input data
       const inputData = await forecastPLModel.getProjectInputData(projectId);
       if (!inputData) {
         throw new Error('No forecast P&L data found for this project');
       }
       const { revenueForecasts, fixedExpenses, salaryCalculations } = inputData;
-      
+  
       // Fetch existing calculations without recalculating
       const existingCalculations = await forecastPLModel.getCalculations(projectId);
-      
+  
       res.status(200).json({
         revenue_forecasts: revenueForecasts,
         fixed_expenses: fixedExpenses,
@@ -52,8 +52,12 @@ const forecastPLController = {
         calculations: existingCalculations
       });
     } catch (error) {
-      console.error('Error in getProjectData:', error);
-      res.status(500).json({ error: error.message, stack: error.stack });
+      logger.error('Error in getProjectData:', error);
+      if (error.message.includes('No salary calculations data found')) {
+        res.status(404).json({ error: 'No salary calculations data found for this project' });
+      } else {
+        res.status(500).json({ error: error.message, stack: error.stack  });
+      }
     }
   }
 };

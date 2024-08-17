@@ -1,4 +1,5 @@
 import supabase from '../../../config/supabase.js';
+import logger from '../../../../logger.js';
 
 const forecastPLModel = {
   async getProjectInputData(projectId) {
@@ -54,7 +55,7 @@ const forecastPLModel = {
       .select();
   
     if (error) {
-      console.error('Error saving calculations:', error);
+      logger.error('Error saving calculations:', error);
       throw error;
     }
     
@@ -69,7 +70,7 @@ const forecastPLModel = {
       .order('calculated_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching calculations:', error);
+      logger.error('Error fetching calculations:', error);
       throw error;
     }
 

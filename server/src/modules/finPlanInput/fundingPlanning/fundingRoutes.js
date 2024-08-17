@@ -1,13 +1,3 @@
-// import express from 'express';
-// import FundingController from './fundingController.js';
-// import { authenticateToken } from '../../../middleware/authMiddleware.js';
-
-// const router = express.Router();
-
-// router.post('/funding-data',  authenticateToken, FundingController.createFundingData);
-
-// export default router;
-
 import express from 'express';
 import FundingController from './fundingController.js';
 import { authenticateToken } from '../../../middleware/authMiddleware.js';

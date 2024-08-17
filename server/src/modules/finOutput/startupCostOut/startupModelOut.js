@@ -1,4 +1,5 @@
 import supabase from '../../../config/supabase.js';
+import logger from '../../../../logger.js';
 
 const StartupModelOut = {
   async getProjectInputData(projectId) {
@@ -48,7 +49,7 @@ const StartupModelOut = {
       .select();
 
     if (error) {
-      console.error('Error saving calculations:', error);
+      logger.error('Error saving calculations:', error);
       throw error;
     }
     return data[0];

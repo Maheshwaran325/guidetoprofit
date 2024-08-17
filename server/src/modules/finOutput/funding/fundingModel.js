@@ -1,4 +1,5 @@
 import supabase from '../../../config/supabase.js';
+import logger from '../../../../logger.js';
 
 const fundingModel = {
  async getProjectInputData(projectId) {
@@ -7,7 +8,7 @@ const fundingModel = {
       .select('*')
       .eq('project_id', projectId);
     if (salesForecastsError) {
-      console.error('Error fetching sales forecasts data:', salesForecastsError);
+      logger.error('Error fetching sales forecasts data:', salesForecastsError);
       return null;
     }
 
@@ -16,7 +17,7 @@ const fundingModel = {
       .select('*')
       .eq('project_id', projectId);
     if (capitalCostsError) {
-      console.error('Error fetching capital costs data:', capitalCostsError);
+      logger.error('Error fetching capital costs data:', capitalCostsError);
       return null;
     }
 
@@ -26,7 +27,7 @@ const fundingModel = {
       .eq('project_id', projectId);
 
     if (forecastPlCalculationsError) {
-      console.error('Error fetching total fixed expenses data:', forecastPlCalculationsError);
+      logger.error('Error fetching total fixed expenses data:', forecastPlCalculationsError);
       return null;
     }
     const { data: fixedExpenses, error: fixedExpensesError } = await supabase
@@ -42,7 +43,7 @@ const fundingModel = {
     .select('grand_total')
     .eq('project_id', projectId);
   if (salaryDataError) {
-    console.error('Error fetching salary data:', salaryDataError);
+    logger.error('Error fetching salary data:', salaryDataError);
     return null;
   }
   const totalSalary = salaryData?.[0]?.grand_total || 0;
@@ -74,7 +75,7 @@ const fundingModel = {
       .select();
   
     if (error) {
-      console.error('Error saving calculations:', error);
+      logger.error('Error saving calculations:', error);
       throw error;
     }
   
@@ -90,7 +91,7 @@ const fundingModel = {
       .order('calculated_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching calculations:', error);
+      logger.error('Error fetching calculations:', error);
       throw error;
     }
 
@@ -163,7 +164,7 @@ export default fundingModel;
 //       .insert(calculationData);
 
 //     if (error) {
-//       console.error('Error saving calculations:', error);
+//       logger.error('Error saving calculations:', error);
 //       throw error;
 //     }
 //     return data;
@@ -177,7 +178,7 @@ export default fundingModel;
 //       .order('calculated_at', { ascending: false });
 
 //     if (error) {
-//       console.error('Error fetching calculations:', error);
+//       logger.error('Error fetching calculations:', error);
 //       throw error;
 //     }
 

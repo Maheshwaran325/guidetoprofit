@@ -7,6 +7,13 @@ import { useProject } from '../../ProjectContext';
 
 ChartJS.register(BarElement, Tooltip, Legend, CategoryScale, LinearScale);
 
+
+const BEAnalysis = () => {
+  const [breakEvenData, setBreakEvenData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { projectId } = useProject();
+  const [startupCosts, setStartupCosts] = useState(null);
 // Function to fetch break-even data
 const fetchBreakEvenData = async (sessionId, setBreakEvenData, setLoading, setError) => {
   if (!sessionId) {
@@ -19,24 +26,23 @@ const fetchBreakEvenData = async (sessionId, setBreakEvenData, setLoading, setEr
   setLoading(true);
   setError(null);
   try {
-    const response = await authenticatedRequest(`http://localhost:8000/break-even-analysis/data/${sessionId}`);
-    if (!response || !response.data) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const [breakEvenResponse, startupCostsResponse] = await Promise.all([
+      authenticatedRequest(`http://localhost:8000/break-even-analysis/data/${sessionId}`),
+      authenticatedRequest(`http://localhost:8000/startup-cost-out/data/${sessionId}`)
+    ]);
+
+    if (!breakEvenResponse || !breakEvenResponse.data || !startupCostsResponse || !startupCostsResponse.data) {
+      throw new Error('Failed to fetch data.');
     }
-    setBreakEvenData(response.data);
+
+    setBreakEvenData(breakEvenResponse.data);
+    setStartupCosts(startupCostsResponse.data.inputData);
   } catch (err) {
-    // console.error('Error fetching data:', err);
-    // setError('Failed to fetch data. Please try again.');
+    setError('Failed to fetch data. Please try again.');
   } finally {
     setLoading(false);
   }
 };
-
-const BEAnalysis = () => {
-  const [breakEvenData, setBreakEvenData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { projectId } = useProject();
 
   useEffect(() => {
     fetchBreakEvenData(projectId, setBreakEvenData, setLoading, setError);
@@ -73,7 +79,15 @@ const BEAnalysis = () => {
       </div>
     );
   }
-
+  if (!startupCosts || !startupCosts.startup_costs || startupCosts.startup_costs.length === 0) {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-warning" role="alert">
+        No project data available. Please submit the form first.
+        </div>
+      </div>
+    );
+  }
   if (!breakEvenData || !breakEvenData.calculations) {
     return (
       <div className="container mt-5">

@@ -1,5 +1,6 @@
 import StartupModelOut from './startupModelOut.js';
 import calculateStartupCosts from './startupCalc.js';
+import logger from '../../../../logger.js';
 
 const StartupControllerOut = {
   async getCalculations(req, res) {
@@ -25,7 +26,7 @@ const StartupControllerOut = {
         calculations
       });
     } catch (error) {
-      console.error('Error in getCalculations:', error);
+      logger.error('Error in getCalculations:', error);
       res.status(500).json({ error: error.message || 'An unexpected error occurred' });
     }
   },
@@ -46,7 +47,7 @@ const StartupControllerOut = {
           existingCalculations
         });
       } catch (error) {
-        console.error('Error in getProjectData:', error);
+        logger.error('Error in getProjectData:', error);
         res.status(500).json({ error: error.message || 'An unexpected error occurred' });
       }
     }

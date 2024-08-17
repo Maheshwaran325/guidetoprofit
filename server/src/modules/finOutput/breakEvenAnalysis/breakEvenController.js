@@ -1,5 +1,6 @@
 import breakEvenModel from './breakEvenModel.js';
 import breakEvenCalc from './breakEvenCalc.js';
+import logger from '../../../../logger.js';
 
 const breakEvenController = {
   async getCalculations(req, res) {
@@ -27,7 +28,7 @@ const breakEvenController = {
         calculations: calculations
       });
     } catch (error) {
-      console.error('Error in getCalculations:', error);
+      logger.error('Error in getCalculations:', error);
       res.status(500).json({ error: error.message });
     }
   },
@@ -50,7 +51,7 @@ const breakEvenController = {
         calculations: breakEvenCalcs,
       });
     } catch (error) {
-      console.error('Error in getCalculations:', error);
+      logger.error('Error in getCalculations:', error);
       res.status(500).json({ error: error.message });
     }
   },
