@@ -7,8 +7,10 @@ const customFormat = _format.combine(
   _format.printf(({ level, message, timestamp }) => `${timestamp} ${level}: ${message}`)
 );
 
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 const logger = createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'error' : 'debug',
+  level: isDevelopment ? 'debug' : 'error',
   format: customFormat,
   transports: [
     new _transports.Console({
@@ -17,5 +19,15 @@ const logger = createLogger({
     new _transports.File({ filename: 'combined.log' })
   ]
 });
+
+// If we're not in production, also log to the console with colorization
+if (isDevelopment) {
+  logger.add(new _transports.Console({
+    format: _format.combine(
+      _format.colorize(),
+      _format.simple()
+    )
+  }));
+}
 
 export default logger;

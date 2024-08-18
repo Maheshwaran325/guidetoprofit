@@ -16,7 +16,6 @@ const years = ['Year1', 'Year2', 'Year3', 'Year4', 'Year5'];
 // =============================================================================
 // RevenueForecasts Component
 // =============================================================================
-// ... (previous imports and code)
 
 const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete  }) => {
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +30,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
     'July', 'August', 'September', 'October', 'November', 'December'
   ], []);
 
-
+// Function to fetch revenue forecasts from the server
   const fetchRevenueForecasts = useCallback(async () => {
     if (!projectId) {
       setIsLoading(false);
@@ -55,14 +54,17 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
     }
   }, [projectId, onDataUpdate, months]);
 
+  // Fetch revenue forecasts when the component mounts and projectId changes
   useEffect(() => {
     fetchRevenueForecasts();
   }, [fetchRevenueForecasts]);
 
+  // Update parent component's data whenever monthlyData changes
   useEffect(() => {
     onDataUpdate(monthlyData);
   }, [monthlyData, onDataUpdate]);
 
+    // Format number with commas for display
   const formatNumber = (num) => {
     if (num === '') return '';
     const parts = num.toString().split('.');
@@ -78,8 +80,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
     return parts.length > 1 ? formattedIntegerPart + '.' + parts[1] : formattedIntegerPart;
     };
 
-
-
+  // Functions to show/hide the modal for adding/editing forecasts
   const handleShowModal = (forecast = null) => {
     setError('');
     setCurrentForecast(forecast || { months: [], units: '', price: '', cost: '' });
@@ -94,6 +95,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
     setError('');
   };
 
+  // Handle changes in month selection
   const handleMonthChange = (month) => {
     setError(''); 
     setSelectedMonths(prev => {
@@ -173,6 +175,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
   useEffect(() => {
     setHandleDelete(() => handleDelete);
   }, [setHandleDelete, handleDelete]);
+  
   if (isLoading) {
     return <div>Loading revenue forecasts...</div>;
   }
@@ -319,6 +322,7 @@ function Entryitems() {
   const [error, setError] = useState(null);
   const [showError, setShowError] = useState(false);
   const [, setDataModified] = useState(false);
+
   // State for Employee Payroll Modal
   const [employeePayrolls, setEmployeePayrolls] = useState([]);
   const [showModalPayroll, setShowModalPayroll] = useState(false);
@@ -338,61 +342,13 @@ function Entryitems() {
   const [selectedYears, setSelectedYears] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   // const tabs = ['nav-startup', 'nav-funding', 'nav-operations', 'nav-payroll'];
+
   const [initialSubmitted, setInitialSubmitted] = useState(null);
-   const [showWarning, setShowWarning] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+
   // =============================================================================
   // Helper Functions
   // =============================================================================
-  const validateData = useCallback(() => {
-    const sections = [
-      { data: startupCosts, name: 'Startup Costs' },
-      { data: startupCapital, name: 'Startup Capital' },
-      { data: capitalWorkProgress, name: 'Capital Work in Progress' },
-      { data: startingOperations, name: 'Starting Operations' },
-      { data: fixedExpenses, name: 'Fixed Expenses' },
-      { data: assets, name: 'Assets' },
-      { data: liabilities, name: 'Liabilities' },
-      { data: capitalCosts, name: 'Capital Costs' },
-      { data: cashFlow, name: 'Cash Flow' },
-      {
-        data: revenueForecasts,
-        name: 'Revenue Forecasts',
-        validate: item => item.month && item.units && item.price && item.cost,
-      },
-      { data: variableCosts, name: 'Variable Costs' },
-      {
-        data: employeePayrolls,
-        name: 'Employee Payrolls',
-        validate: item => item.designation && item.salary && item.months.length > 0,
-      },
-    ];
-  
-    for (const section of sections) {
-      let validItems;
-      if (section.validate) {
-        // Use custom validation function if provided
-        validItems = section.data.filter(section.validate);
-      } else {
-        // Default validation for description and amount
-        validItems = section.data.filter(item => item.description && item.amount);
-      }
-  
-      if (validItems.length === 0) {
-        setError(`Please fill at least one item correctly in ${section.name}.`);
-        setShowError(true);
-        return false; // Invalid data
-      }
-    }
-  
-    setError(null); // Clear any previous error
-    return true; // Data is valid
-  }, [startupCosts, startupCapital, capitalWorkProgress, startingOperations, fixedExpenses, assets, liabilities, capitalCosts, cashFlow, revenueForecasts, variableCosts, employeePayrolls]);
-  
-      // Add a new item to a specific input section
-      const handleAddItem = (setFunction) => {
-        setFunction(prevItems => [...prevItems, { description: '', amount: '' }]);
-        setDataModified(true); // Set the dataModified flag but don't trigger validation
-      };
 
   // Format number with commas
   const formatNumber = (num) => {
@@ -408,30 +364,11 @@ function Entryitems() {
     const formattedIntegerPart = otherDigits.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThreeDigits;
     // Combine with decimal part if it exists
     return parts.length > 1 ? formattedIntegerPart + '.' + parts[1] : formattedIntegerPart;
-};
-
-
-
+  };
 
   // Parse number from formatted string
   const parseNumber = (str) => {
     return str.replace(/,/g, '');
-  };
-
-  // Handle input changes for description and amount fields
-  const handleInputChange = (index, setFunction, field, value) => {
-    setFunction(prevItems => {
-      const newItems = [...prevItems];
-      if (field === 'amount') {
-        const sanitizedValue = value.replace(/[^\d,]/g, '');
-        const numberValue = parseNumber(sanitizedValue);
-        newItems[index][field] = numberValue;
-      } else {
-        newItems[index][field] = value;
-      }
-      return newItems;
-    });
-    setDataModified(true); 
   };
 
   // Options for input datalists
@@ -532,152 +469,10 @@ function Entryitems() {
         'Production Supplies'
     ],
   };
-  
 
-// Clear all items in a specific input section
-const handleClearAll = (setFunction) => {
-  setShowWarning(true);
-};
-
-const handleWarningConfirm = async () => {
-  setShowWarning(false);
-
-  try {
-    await Promise.all([
-      clearDataForSection(setStartupCosts, 'startup_costs', 'startup-cost'),
-      clearDataForSection(setStartupCapital, 'startup_capital', 'startup-cost'),
-      clearDataForSection(setCapitalWorkProgress, 'capital_work_progress', 'startup-cost'),
-      clearDataForSection(setStartingOperations, 'starting_operations', 'startup-cost'),
-    ]);
-
-    await Promise.all([
-      clearDataForSection(setAssets, 'assets', 'funding'),
-      clearDataForSection(setLiabilities, 'liabilities', 'funding'),
-      clearDataForSection(setCashFlow, 'cash_flow', 'funding'),
-      clearSpecialSection(setFixedExpenses, 'fixed_expenses', handleDeleteFixedExpense),
-      clearSpecialSection(setCapitalCosts, 'capital_costs', handleDeleteCapitalCost),
-      clearRevenueSection(setRevenueForecasts, 'revenue_forecasts', handleDeleteRevenueForecast),
-      clearEmployeePayrollSection(setEmployeePayrolls, handleDeleteEmployeePayroll),
-    ]);
-
-    await clearDataForSection(setVariableCosts, 'variable_costs', 'operations');
-
-    // Reset the initial submission status after clearing all data
-    setInitialSubmitted(false); // Set initialSubmitted to false
-
-    await Promise.all([
-      fetchProjectData(),
-      fetchFundingData(),
-      fetchOperationsFinanceData(),
-    ]);
-  } catch (error) {
-    setError('Failed to clear all data. Please try again.');
-  }
-};
-
-const clearDataForSection = async (setter, tableName, endpoint) => {
-  try {
-    const itemsToDelete = await new Promise(resolve => {
-      setter(prevState => {
-        const toDelete = prevState.filter(item => item.id != null);
-        resolve(toDelete);
-        return prevState; // Don't modify the state yet
-      });
-    });
-
-    if (itemsToDelete.length === 0) {
-      return;
-    }
-
-    const deletePromises = itemsToDelete.map(item => 
-      authenticatedRequest(`http://localhost:8000/${endpoint}/delete-item/${item.id}/${projectId}?table=${tableName}`, 'DELETE')
-    );
-
-    await Promise.all(deletePromises);
-
-    setter(() => [{ description: '', amount: '' }]);
-  } catch (error) {
-    throw error;
-  }
-};
-
-const clearSpecialSection = async (setter, sectionName, deleteHandler) => {
-  try {
-    const itemsToDelete = await new Promise(resolve => {
-      setter(prevState => {
-        resolve([...prevState]);
-        return prevState; // Don't modify the state yet
-      });
-    });
-
-    if (itemsToDelete.length === 0) {
-      return;
-    }
-
-    for (let i = itemsToDelete.length - 1; i >= 0; i--) {
-      await deleteHandler(i);
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-const clearRevenueSection = async (setter, sectionName, deleteHandler) => {
-  try {
-    const itemsToDelete = await new Promise(resolve => {
-      setter(prevState => {
-        resolve([...prevState]);
-        return prevState; // Don't modify the state yet
-      });
-    });
-
-    if (itemsToDelete.length === 0) {
-      return;
-    }
-
-    for (let item of itemsToDelete) {
-      if (item.id) {
-        await deleteHandler(item.id);
-      }
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-const clearEmployeePayrollSection = async (setter, deleteHandler) => {
-  try {
-    const itemsToDelete = await new Promise(resolve => {
-      setter(prevState => {
-        resolve([...prevState]);
-        return prevState; // Don't modify the state yet
-      });
-    });
-
-    if (itemsToDelete.length === 0) {
-      return;
-    }
-
-    for (let i = itemsToDelete.length - 1; i >= 0; i--) {
-      await deleteHandler(i);
-    }
-  } catch (error) {
-    throw error;
-  }
-};
-
-const handleWarningCancel = () => {
-  setShowWarning(false);
-};
-
-  // Navigate to the next tab
-  const handleNextTab = () => {
-    const tabs = ['nav-startup', 'nav-funding', 'nav-operations', 'nav-payroll'];
-    const currentIndex = tabs.indexOf(activeTab);
-    const nextIndex = (currentIndex + 1) % tabs.length;
-    setActiveTab(tabs[nextIndex]);
-  };
-
+  // =============================================================================
+  // Necessary Functions 
+  // =============================================================================
   // Render input fields for a specific section
   const renderInputs = (items, setFunction, inputType) => (
     items.map((item, index) => (
@@ -722,201 +517,30 @@ const handleWarningCancel = () => {
       </div>
     ))
   );
-  
-  // =============================================================================
-  // Financial Modal Handlers
-// =============================================================================
 
-// Open the modal for fixed expenses and capital costs
-const handleModalOpen = (type, index = null) => {
-  setModalType(type);
-  setEditingIndex(index);
-
-  if (index !== null) {
-    // Editing an existing item
-    if (type === 'fixedExpense') {
-      const expense = fixedExpenses[index];
-      setModalDescription(expense.description);
-      setModalAmount(formatNumber(expense.amount));
-      setSelectedMonths(expense.months);
-    } else if (type === 'capitalCost') {
-      const cost = capitalCosts[index];
-      setModalDescription(cost.description);
-      setModalAmount(formatNumber(cost.amount));
-      setSelectedYears(cost.years);
-    }
-  } else {
-    // Adding a new item
-    setModalDescription('');
-    setModalAmount('');
-    setSelectedMonths([]);
-    setSelectedYears([]);
-  }
-
-  setShowModal(true);
-};
-
-// Close the modal and reset all related states
-const handleModalClose = () => {
-  setShowModal(false);
-  setModalType(null);
-  setEditingIndex(null);
-  setModalDescription('');
-  setModalAmount('');
-  setSelectedMonths([]);
-  setSelectedYears([]);
-};
-
-// Handle input changes in the modal
-const handleModalInputChange = (field, value) => {
-  if (field === 'amount') {
-    // Sanitize the amount input to allow only numbers and commas
-    const sanitizedValue = value.replace(/[^\d,]/g, '');
-    setModalAmount(sanitizedValue);
-  } else {
-    setModalDescription(value);
-  }
-};
-
-// Save a fixed expense
-const handleSaveFixedExpense = async () => {
-  // Validate input
-  if (!modalDescription || !modalAmount) {
-    alert('Please fill out description and amount fields.');
-    return;
-  }
-
-  if (selectedMonths.length === 0) {
-    alert('Please select at least one month.');
-    return;
-  }
-
-  const expenseData = {
-    id: editingIndex !== null ? fixedExpenses[editingIndex].id : null,
-    description: modalDescription,
-    amount: parseNumber(modalAmount),
-    months: selectedMonths
+  // Handle input changes for description and amount fields
+  const handleInputChange = (index, setFunction, field, value) => {
+    setFunction(prevItems => {
+      const newItems = [...prevItems];
+      if (field === 'amount') {
+        const sanitizedValue = value.replace(/[^\d,]/g, '');
+        const numberValue = parseNumber(sanitizedValue);
+        newItems[index][field] = numberValue;
+      } else {
+        newItems[index][field] = value;
+      }
+      return newItems;
+    });
+    setDataModified(true); 
   };
 
-  try {
-    let response;
-    if (editingIndex !== null) {
-      // Update existing expense
-      response = await authenticatedRequest(
-        `http://localhost:8000/funding/update-fixed-expense/${projectId}`,
-        'PUT',
-        expenseData
-      );
-    } else {
-      // Add new expense
-      response = await authenticatedRequest(
-        `http://localhost:8000/funding/add-fixed-expense/${projectId}`,
-        'POST',
-        expenseData
-      );
-    }
-
-    if (response.data && response.data.fixed_expenses) {
-      setFixedExpenses(response.data.fixed_expenses);
-      handleModalClose();
-    } else {
-      throw new Error('Invalid response from server');
-    }
-  } catch (err) {
-    console.error('Error saving fixed expense:', err);
-    setError(`Failed to save fixed expense: ${err.message}`);
-  }
-};
-
-
-const handleSaveCapitalCost = async () => { 
-  // Validate input
-  if (!modalDescription || !modalAmount) {
-    alert('Please fill out description and amount fields.');
-    return;
-  }
-
-  if (selectedYears.length === 0) {
-    alert('Please select at least one year.');
-    return;
-  }
-
-  const costData = {
-    id: editingIndex !== null ? capitalCosts[editingIndex].id : null,
-    description: modalDescription,
-    amount: parseNumber(modalAmount),
-    years: selectedYears
+  // Add a new item to a specific input section
+  const handleAddItem = (setFunction) => {
+    setFunction(prevItems => [...prevItems, { description: '', amount: '' }]);
+    setDataModified(true); // Set the dataModified flag but don't trigger validation
   };
-
-  try {
-    let response;
-    if (editingIndex !== null) {
-      // Update existing cost
-      response = await authenticatedRequest(
-        `http://localhost:8000/funding/update-capital-cost/${projectId}`,
-        'PUT',
-        costData
-      );
-    } else {
-      // Add new cost
-      response = await authenticatedRequest(
-        `http://localhost:8000/funding/add-capital-cost/${projectId}`,
-        'POST',
-        costData
-      );
-    }
-
-    if (response.data && response.data.capital_costs) {
-      setCapitalCosts(response.data.capital_costs);
-      handleModalClose();
-    } else {
-      throw new Error('Invalid response from server');
-    }
-  } catch (err) {
-    setError(`Failed to save capital cost: ${err.message}`);
-  }
-};
-// Toggle month selection for fixed expenses
-    const handleMonthChange = (month) => {
-      setSelectedMonths(prevMonths => 
-        prevMonths.includes(month)
-          ? prevMonths.filter(m => m !== month)
-          : [...prevMonths, month]
-      );
-    };
-
-// Toggle year selection for capital costs
-  const handleYearChange = (year) => {
-    setSelectedYears(prevYears => 
-      prevYears.includes(year)
-        ? prevYears.filter(y => y !== year)
-        : [...prevYears, year]
-    );
-  };
-
-  // Delete a fixed expense
-  const handleDeleteFixedExpense = async (index) => {
-    try {
-      const response = await authenticatedRequest(`http://localhost:8000/funding/delete-fixed-expense/${projectId}`, 'DELETE', { index });
-      setFixedExpenses(response.data.fixed_expenses);
-    } catch (err) {
-      setError('Failed to delete fixed expense. Please try again.');
-      console.error('Error deleting fixed expense:', err);
-    }
-  };
-
-  // Delete a capital cost
-  const handleDeleteCapitalCost = async (index) => {
-    try {
-      const response = await authenticatedRequest(`http://localhost:8000/funding/delete-capital-cost/${projectId}`, 'DELETE', { index });
-      setCapitalCosts(response.data.capital_costs);
-    } catch (err) {
-      setError('Failed to delete fixed expense. Please try again.');
-      console.error('Error deleting fixed expense:', err);
-    }
-  };
-
-  // Delete an item from a specific section and update the server if necessary
+    
+  // Delete an item from a specific section 
   const handleDeleteItem = async (index, setter) => {
     try {
       setter(prev => {
@@ -982,11 +606,359 @@ const handleSaveCapitalCost = async () => {
       console.error('Error deleting item:', err);
     }
   };
-  // =============================================================================
-  // Data Fetching and Submission
-  // =============================================================================
+
+  // Navigate to the next tab
+  const handleNextTab = () => {
+    const tabs = ['nav-startup', 'nav-funding', 'nav-operations', 'nav-payroll'];
+    const currentIndex = tabs.indexOf(activeTab);
+    const nextIndex = (currentIndex + 1) % tabs.length;
+    setActiveTab(tabs[nextIndex]);
+  };
+
+  const handleRevenueDataUpdate = useCallback((data) => {
+    setRevenueForecasts(data);
+  }, []);
+
+  // validates the data for all sections to ensure all required fields are filled correctly.
+  const validateData = useCallback(() => {
+    const sections = [
+      { data: startupCosts, name: 'Startup Costs' },
+      { data: startupCapital, name: 'Startup Capital' },
+      { data: capitalWorkProgress, name: 'Capital Work in Progress' },
+      { data: startingOperations, name: 'Starting Operations' },
+      { data: fixedExpenses, name: 'Fixed Expenses' },
+      { data: assets, name: 'Assets' },
+      { data: liabilities, name: 'Liabilities' },
+      { data: capitalCosts, name: 'Capital Costs' },
+      { data: cashFlow, name: 'Cash Flow' },
+      {
+        data: revenueForecasts,
+        name: 'Revenue Forecasts',
+        validate: item => item.month && item.units && item.price && item.cost,
+      },
+      { data: variableCosts, name: 'Variable Costs' },
+      {
+        data: employeePayrolls,
+        name: 'Employee Payrolls',
+        validate: item => item.designation && item.salary && item.months.length > 0,
+      },
+    ];
   
-  // Fetch project data from the server
+    for (const section of sections) {
+      let validItems;
+      if (section.validate) {
+        // Use custom validation function if provided
+        validItems = section.data.filter(section.validate);
+      } else {
+        // Default validation for description and amount
+        validItems = section.data.filter(item => item.description && item.amount);
+      }
+  
+      if (validItems.length === 0) {
+        setError(`Please fill at least one item correctly in ${section.name}.`);
+        setShowError(true);
+        return false; // Invalid data
+      }
+    }
+  
+    setError(null); // Clear any previous error
+    return true; // Data is valid
+  }, [startupCosts, startupCapital, capitalWorkProgress, startingOperations, fixedExpenses, assets, liabilities, capitalCosts, cashFlow, revenueForecasts, variableCosts, employeePayrolls]);
+
+  // =============================================================================
+  // Financial and Capital Cost Modal Handlers
+  // =============================================================================
+
+  // Open the modal for fixed expenses and capital costs
+  const handleModalOpen = (type, index = null) => {
+    setModalType(type);
+    setEditingIndex(index);
+
+    if (index !== null) {
+      // Editing an existing item
+      if (type === 'fixedExpense') {
+        const expense = fixedExpenses[index];
+        setModalDescription(expense.description);
+        setModalAmount(formatNumber(expense.amount));
+        setSelectedMonths(expense.months);
+      } else if (type === 'capitalCost') {
+        const cost = capitalCosts[index];
+        setModalDescription(cost.description);
+        setModalAmount(formatNumber(cost.amount));
+        setSelectedYears(cost.years);
+      }
+    } else {
+      // Adding a new item
+      setModalDescription('');
+      setModalAmount('');
+      setSelectedMonths([]);
+      setSelectedYears([]);
+    }
+
+    setShowModal(true);
+  };
+
+  // Close the modal and reset all related states
+  const handleModalClose = () => {
+    setShowModal(false);
+    setModalType(null);
+    setEditingIndex(null);
+    setModalDescription('');
+    setModalAmount('');
+    setSelectedMonths([]);
+    setSelectedYears([]);
+  };
+
+  // Handle input changes in the modal
+  const handleModalInputChange = (field, value) => {
+    if (field === 'amount') {
+      // Sanitize the amount input to allow only numbers and commas
+      const sanitizedValue = value.replace(/[^\d,]/g, '');
+      setModalAmount(sanitizedValue);
+    } else {
+      setModalDescription(value);
+    }
+  };
+
+  // Save a fixed expense
+  const handleSaveFixedExpense = async () => {
+    // Validate input
+    if (!modalDescription || !modalAmount) {
+      alert('Please fill out description and amount fields.');
+      return;
+    }
+
+    if (selectedMonths.length === 0) {
+      alert('Please select at least one month.');
+      return;
+    }
+
+    const expenseData = {
+      id: editingIndex !== null ? fixedExpenses[editingIndex].id : null,
+      description: modalDescription,
+      amount: parseNumber(modalAmount),
+      months: selectedMonths
+    };
+
+    try {
+      let response;
+      if (editingIndex !== null) {
+        // Update existing expense
+        response = await authenticatedRequest(
+          `http://localhost:8000/funding/update-fixed-expense/${projectId}`,
+          'PUT',
+          expenseData
+        );
+      } else {
+        // Add new expense
+        response = await authenticatedRequest(
+          `http://localhost:8000/funding/add-fixed-expense/${projectId}`,
+          'POST',
+          expenseData
+        );
+      }
+
+      if (response.data && response.data.fixed_expenses) {
+        setFixedExpenses(response.data.fixed_expenses);
+        handleModalClose();
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (err) {
+      console.error('Error saving fixed expense:', err);
+      setError(`Failed to save fixed expense: ${err.message}`);
+    }
+  };
+
+  // Save a Capital Cost 
+  const handleSaveCapitalCost = async () => { 
+    // Validate input
+    if (!modalDescription || !modalAmount) {
+      alert('Please fill out description and amount fields.');
+      return;
+    }
+    if (selectedYears.length === 0) {
+      alert('Please select at least one year.');
+      return;
+    }
+    const costData = {
+      id: editingIndex !== null ? capitalCosts[editingIndex].id : null,
+      description: modalDescription,
+      amount: parseNumber(modalAmount),
+      years: selectedYears
+    };
+    try {
+      let response;
+      if (editingIndex !== null) {
+        // Update existing cost
+        response = await authenticatedRequest(
+          `http://localhost:8000/funding/update-capital-cost/${projectId}`,
+          'PUT',
+          costData
+        );
+      } else {
+        // Add new cost
+        response = await authenticatedRequest(
+          `http://localhost:8000/funding/add-capital-cost/${projectId}`,
+          'POST',
+          costData
+        );
+      }
+      if (response.data && response.data.capital_costs) {
+        setCapitalCosts(response.data.capital_costs);
+        handleModalClose();
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (err) {
+      setError(`Failed to save capital cost: ${err.message}`);
+    }
+  };
+
+  // Toggle month selection for fixed expenses
+    const handleMonthChange = (month) => {
+      setSelectedMonths(prevMonths => 
+        prevMonths.includes(month)
+          ? prevMonths.filter(m => m !== month)
+          : [...prevMonths, month]
+      );
+    };
+
+  // Toggle year selection for capital costs
+  const handleYearChange = (year) => {
+    setSelectedYears(prevYears => 
+      prevYears.includes(year)
+        ? prevYears.filter(y => y !== year)
+        : [...prevYears, year]
+    );
+  };
+
+  // Delete a fixed expense
+  const handleDeleteFixedExpense = async (index) => {
+    try {
+      const response = await authenticatedRequest(`http://localhost:8000/funding/delete-fixed-expense/${projectId}`, 'DELETE', { index });
+      setFixedExpenses(response.data.fixed_expenses);
+    } catch (err) {
+      setError('Failed to delete fixed expense. Please try again.');
+      console.error('Error deleting fixed expense:', err);
+    }
+  };
+
+  // Delete a capital cost
+  const handleDeleteCapitalCost = async (index) => {
+    try {
+      const response = await authenticatedRequest(`http://localhost:8000/funding/delete-capital-cost/${projectId}`, 'DELETE', { index });
+      setCapitalCosts(response.data.capital_costs);
+    } catch (err) {
+      setError('Failed to delete fixed expense. Please try again.');
+      console.error('Error deleting fixed expense:', err);
+    }
+  };
+
+  // =============================================================================
+  // Employee Payroll Modal Handlers
+  // =============================================================================
+
+  // Open the modal for employee payroll
+  const handleEmployeePayrollModal = (index = null) => {
+    setEditingIndexPayroll(index);
+  
+    if (index !== null && index >= 0 && index < employeePayrolls.length) {
+      const payroll = employeePayrolls[index];
+      setPayrollDesignation(payroll.designation);
+      setPayrollSalary(payroll.salary);
+      setSelectedMonthsPayroll(payroll.months);
+    } else {
+      // Reset fields for new entry or invalid index
+      setPayrollDesignation('');
+      setPayrollSalary('');
+      setSelectedMonthsPayroll([]);
+    }
+  
+    setShowModalPayroll(true);
+  };
+
+  // Function to handle modal close
+  const handleEmployeePayrollModalClose = () => {
+    setShowModalPayroll(false);
+    setEditingIndexPayroll(null);
+    setPayrollDesignation('');
+    setPayrollSalary('');
+    setSelectedMonthsPayroll([]);
+  };
+
+  // Save employee payroll
+  const handleSaveEmployeePayroll = async () => {
+    if (!payrollDesignation || !payrollSalary || selectedMonthsPayroll.length === 0) {
+      alert('Please fill out all fields and select at least one month.');
+      return;
+    }
+
+    const payrollData = {
+      id: editingIndexPayroll !== null ? employeePayrolls[editingIndexPayroll].id : null,
+      designation: payrollDesignation,
+      salary: parseFloat(payrollSalary),
+      months: selectedMonthsPayroll
+    };
+
+    try {
+      let response;
+      if (editingIndexPayroll !== null) {
+        response = await authenticatedRequest(
+          `http://localhost:8000/payroll/update-employee-payroll/${projectId}`,
+          'PUT',
+          payrollData
+        );
+      } else {
+        response = await authenticatedRequest(
+          `http://localhost:8000/payroll/add-employee-payroll/${projectId}`,
+          'POST',
+          payrollData
+        );
+      }
+
+      if (response.data && response.data.employee_payrolls) {
+        setEmployeePayrolls(response.data.employee_payrolls);
+        handleEmployeePayrollModalClose();
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (err) {
+      console.error('Error saving employee payroll:', err);
+      setError(`Failed to save employee payroll: ${err.message}`);
+    }
+  };
+
+ // Toggle month selection
+  const handleMonthChangePayroll = (month) => {
+    setSelectedMonthsPayroll(prevMonths => {
+      const updatedMonths = prevMonths.includes(month)
+        ? prevMonths.filter(m => m !== month)
+        : [...prevMonths, month];
+      return updatedMonths;
+    });
+  };
+
+  // Handle deleting employee payroll
+  const handleDeleteEmployeePayroll = async (index) => {
+    try {
+      const response = await authenticatedRequest(
+        `http://localhost:8000/payroll/delete-employee-payroll/${projectId}`,
+        'DELETE',
+        { index }
+      );
+      setEmployeePayrolls(response.data.employee_payrolls);
+    } catch (err) {
+      setError('Failed to delete employee payroll. Please try again.');
+      console.error('Error deleting employee payroll:', err);
+    }
+  };
+  
+  // =============================================================================
+  // Data Fetching From Sever
+  // =============================================================================
+
+  // Fetch Startup Cost tab data 
   const fetchProjectData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -1004,7 +976,14 @@ const handleSaveCapitalCost = async () => {
     }
   }, [projectId]);
 
-  // Fetch project data for Finanicial Model
+  // Use effect to fetch Startup cost tab data when projectId changes
+  useEffect(() => {
+    if (projectId) {
+      fetchProjectData();
+    }
+  }, [projectId, fetchProjectData]);
+
+  // Fetch Finanicial tab data
   const fetchFundingData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -1023,19 +1002,63 @@ const handleSaveCapitalCost = async () => {
     }
   }, [projectId]);
 
-  // Use effect to fetch data when projectId changes
-  useEffect(() => {
-    if (projectId) {
-      fetchProjectData();
-    }
-  }, [projectId, fetchProjectData]);
-
+  // Fetches funding tab data when projectId changes.
   useEffect(() => {
     if (projectId) {
       fetchFundingData();
     }
   }, [projectId, fetchFundingData]);
 
+  // Fetch Operation tab data
+  const fetchOperationsFinanceData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await authenticatedRequest(`http://localhost:8000/operations/data/${projectId}`, 'GET');
+      const data = response.data;
+      setRevenueForecasts(data.revenueForecasts || []);
+      setVariableCosts(data.variableCosts || []);
+    } catch (err) {
+      setError('Failed to fetch operations and finance data. Please try again.');
+      console.error('Error fetching operations and finance data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectId]);
+
+  // Fetches Operation tab data when projectId changes.
+  useEffect(() => {
+    if (projectId) {
+      fetchOperationsFinanceData();
+    }
+  }, [projectId, fetchOperationsFinanceData]);
+
+  // Fetch EmployeePayroll tab data
+  const fetchPayrollData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const response = await authenticatedRequest(`http://localhost:8000/payroll/project-data/${projectId}`, 'GET');
+      const data = response.data;
+      setEmployeePayrolls(data.employee_payrolls || []);
+    } catch (err) {
+      setError('Failed to fetch payroll data. Please try again.');
+      console.error('Error fetching payroll data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [projectId]);
+
+  // Fetches EmployeePayroll tab data when projectId changes.
+  useEffect(() => {
+    if (projectId) {
+      fetchPayrollData();
+    }
+  }, [projectId, fetchPayrollData]);
+
+  // =============================================================================
+  // Data Submission to server
+  // =============================================================================
+
+  // Checks if the initial submission for the project has been completed.
   const checkInitialSubmitStatus = useCallback(async () => {
     if (!projectId) {
       console.log('Project ID not available yet');
@@ -1066,6 +1089,7 @@ const handleSaveCapitalCost = async () => {
  }
   }, [projectId]);
 
+  // Checks the initial submission status for the project when projectId changes and initialSubmitted is null.
   useEffect(() => {
     // Only check the status if it hasn't been determined yet
     if (projectId && initialSubmitted === null) {
@@ -1073,8 +1097,7 @@ const handleSaveCapitalCost = async () => {
     }
   }, [projectId, checkInitialSubmitStatus, initialSubmitted]);
 
-
-
+  //Handle Initial Submission
   const handleInitialSubmit = async () => {
     setError(null);
     setShowError(false);
@@ -1127,45 +1150,6 @@ const handleSaveCapitalCost = async () => {
       setIsLoading(false);
     }
   };
-  
-  const triggerAllRecalculations = async (projectId) => {
-    try {
-      const endpoints = [
-        '/startup-cost-out/calculations',
-        '/cogs-calculator/calculations',
-        '/sales-forecast/calculations',
-        '/salaries/calculations',
-        '/forecast-pl/calculations',
-        '/break-even-analysis/calculations',
-        '/funding-out/calculations'
-      ];
-  
-      const recalculationPromises = endpoints.map(endpoint => 
-        authenticatedRequest(`http://localhost:8000${endpoint}/${projectId}`, 'GET')
-          .catch(error => ({ endpoint, error })) // Catch errors for each request
-      );
-  
-      const results = await Promise.all(recalculationPromises);
-      
-      const errors = [];
-      results.forEach(result => {
-        if (result.error) {
-          console.error(`Error in endpoint ${result.endpoint}:`, result.error);
-          errors.push(result);
-        }
-      });
-  
-      if (errors.length > 0) {
-        throw new Error(`Recalculations failed for ${errors.length} endpoints. Check logs for details.`);
-      }
-  
-      console.log('All recalculations completed successfully');
-    } catch (error) {
-      console.error('Error during recalculations:', error);
-      throw error;
-    }
-  };
-  
   
   // Submit startup cost data to the server
   const handleSubmit = async () => {
@@ -1288,155 +1272,7 @@ const handleSaveCapitalCost = async () => {
     }
   };
   
-  const handleRevenueDataUpdate = useCallback((data) => {
-    setRevenueForecasts(data);
-  }, []);
-
-  const fetchOperationsFinanceData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await authenticatedRequest(`http://localhost:8000/operations/data/${projectId}`, 'GET');
-      const data = response.data;
-      setRevenueForecasts(data.revenueForecasts || []);
-      setVariableCosts(data.variableCosts || []);
-    } catch (err) {
-      setError('Failed to fetch operations and finance data. Please try again.');
-      console.error('Error fetching operations and finance data:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [projectId]);
-
-  useEffect(() => {
-    if (projectId) {
-      fetchOperationsFinanceData();
-    }
-  }, [projectId, fetchOperationsFinanceData]);
-
-  // =============================================================================
-  // Employee Payroll Handlers
-  // =============================================================================
-
-  // Open the modal for employee payroll
-  const handleEmployeePayrollModal = (index = null) => {
-    setEditingIndexPayroll(index);
-  
-    if (index !== null && index >= 0 && index < employeePayrolls.length) {
-      const payroll = employeePayrolls[index];
-      setPayrollDesignation(payroll.designation);
-      setPayrollSalary(payroll.salary);
-      setSelectedMonthsPayroll(payroll.months);
-    } else {
-      // Reset fields for new entry or invalid index
-      setPayrollDesignation('');
-      setPayrollSalary('');
-      setSelectedMonthsPayroll([]);
-    }
-  
-    setShowModalPayroll(true);
-  };
-
-  
-  // Function to handle modal close
-  const handleEmployeePayrollModalClose = () => {
-    setShowModalPayroll(false);
-    setEditingIndexPayroll(null);
-    setPayrollDesignation('');
-    setPayrollSalary('');
-    setSelectedMonthsPayroll([]);
-  };
-
-  // Add this function to handle saving employee payroll
-// Save employee payroll
-const handleSaveEmployeePayroll = async () => {
-  if (!payrollDesignation || !payrollSalary || selectedMonthsPayroll.length === 0) {
-    alert('Please fill out all fields and select at least one month.');
-    return;
-  }
-
-  const payrollData = {
-    id: editingIndexPayroll !== null ? employeePayrolls[editingIndexPayroll].id : null,
-    designation: payrollDesignation,
-    salary: parseFloat(payrollSalary),
-    months: selectedMonthsPayroll
-  };
-
-  try {
-    let response;
-    if (editingIndexPayroll !== null) {
-      response = await authenticatedRequest(
-        `http://localhost:8000/payroll/update-employee-payroll/${projectId}`,
-        'PUT',
-        payrollData
-      );
-    } else {
-      response = await authenticatedRequest(
-        `http://localhost:8000/payroll/add-employee-payroll/${projectId}`,
-        'POST',
-        payrollData
-      );
-    }
-
-    if (response.data && response.data.employee_payrolls) {
-      setEmployeePayrolls(response.data.employee_payrolls);
-      handleEmployeePayrollModalClose();
-    } else {
-      throw new Error('Invalid response from server');
-    }
-  } catch (err) {
-    console.error('Error saving employee payroll:', err);
-    setError(`Failed to save employee payroll: ${err.message}`);
-  }
-};
-
-
-  // Add handleMonthChangePayroll
-  const handleMonthChangePayroll = (month) => {
-    setSelectedMonthsPayroll(prevMonths => {
-      const updatedMonths = prevMonths.includes(month)
-        ? prevMonths.filter(m => m !== month)
-        : [...prevMonths, month];
-      return updatedMonths;
-    });
-  };
-
-  // Add this function to handle deleting employee payroll
-  const handleDeleteEmployeePayroll = async (index) => {
-    try {
-      const response = await authenticatedRequest(
-        `http://localhost:8000/payroll/delete-employee-payroll/${projectId}`,
-        'DELETE',
-        { index }
-      );
-      setEmployeePayrolls(response.data.employee_payrolls);
-    } catch (err) {
-      setError('Failed to delete employee payroll. Please try again.');
-      console.error('Error deleting employee payroll:', err);
-    }
-  };
-  
-
-  const fetchPayrollData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await authenticatedRequest(`http://localhost:8000/payroll/project-data/${projectId}`, 'GET');
-      const data = response.data;
-      setEmployeePayrolls(data.employee_payrolls || []);
-    } catch (err) {
-      setError('Failed to fetch payroll data. Please try again.');
-      console.error('Error fetching payroll data:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [projectId]);
-
-  useEffect(() => {
-    if (projectId) {
-      fetchPayrollData();
-    }
-  }, [projectId, fetchPayrollData]);
   // Submit payroll data to the server
-
   const handlePayrollSubmit = async () => {
     setError(null);
     setShowError(false);
@@ -1478,9 +1314,199 @@ const handleSaveEmployeePayroll = async () => {
       setIsLoading(false);
     }
   };
+
+  // When new data submits it trigger Recalculation
+  const triggerAllRecalculations = async (projectId) => {
+    try {
+      const endpoints = [
+        '/startup-cost-out/calculations',
+        '/cogs-calculator/calculations',
+        '/sales-forecast/calculations',
+        '/salaries/calculations',
+        '/forecast-pl/calculations',
+        '/break-even-analysis/calculations',
+        '/funding-out/calculations'
+      ];
+  
+      const recalculationPromises = endpoints.map(endpoint => 
+        authenticatedRequest(`http://localhost:8000${endpoint}/${projectId}`, 'GET')
+          .catch(error => ({ endpoint, error })) // Catch errors for each request
+      );
+  
+      const results = await Promise.all(recalculationPromises);
+      
+      const errors = [];
+      results.forEach(result => {
+        if (result.error) {
+          console.error(`Error in endpoint ${result.endpoint}:`, result.error);
+          errors.push(result);
+        }
+      });
+  
+      if (errors.length > 0) {
+        throw new Error(`Recalculations failed for ${errors.length} endpoints. Check logs for details.`);
+      }
+  
+      console.log('All recalculations completed successfully');
+    } catch (error) {
+      console.error('Error during recalculations:', error);
+      throw error;
+    }
+  };
+
+   // =============================================================================
+  //  Clear all items
+  // =============================================================================
+
+  // Clears all data from all tabs.
+  const handleClearAll = (setFunction) => {
+    setShowWarning(true);
+  };
+
+  //Handle Warning Cancel
+  const handleWarningCancel = () => {
+    setShowWarning(false);
+  };
+
+  // Confirms the user's decision to clear all data from all tabs.
+  const handleWarningConfirm = async () => {
+    setShowWarning(false);
+
+    try {
+      await Promise.all([
+        clearDataForSection(setStartupCosts, 'startup_costs', 'startup-cost'),
+        clearDataForSection(setStartupCapital, 'startup_capital', 'startup-cost'),
+        clearDataForSection(setCapitalWorkProgress, 'capital_work_progress', 'startup-cost'),
+        clearDataForSection(setStartingOperations, 'starting_operations', 'startup-cost'),
+      ]);
+
+      await Promise.all([
+        clearDataForSection(setAssets, 'assets', 'funding'),
+        clearDataForSection(setLiabilities, 'liabilities', 'funding'),
+        clearDataForSection(setCashFlow, 'cash_flow', 'funding'),
+        clearSpecialSection(setFixedExpenses, 'fixed_expenses', handleDeleteFixedExpense),
+        clearSpecialSection(setCapitalCosts, 'capital_costs', handleDeleteCapitalCost),
+        clearRevenueSection(setRevenueForecasts, 'revenue_forecasts', handleDeleteRevenueForecast),
+        clearEmployeePayrollSection(setEmployeePayrolls, handleDeleteEmployeePayroll),
+      ]);
+
+      await clearDataForSection(setVariableCosts, 'variable_costs', 'operations');
+
+    // Reset the initial submission status after clearing all data
+    setInitialSubmitted(false);
+
+    // Update the initial_submit_complete status in the database
+    if (!projectId) {
+      throw new Error('Project ID is not available. Please try again later.');
+    }
+   await authenticatedRequest(`http://localhost:8000/project/${projectId}/mark-initial-submit-incomplete`, 'POST');
+
+      await Promise.all([
+        fetchProjectData(),
+        fetchFundingData(),
+        fetchOperationsFinanceData(),
+      ]);
+    } catch (error) {
+      console.error('Error in handleWarningConfirm:', error);
+      setError('Failed to clear all data. Please try again.');
+    }
+  };
+
+  // Clears all data from a specific section (e.g., startup costs, assets, etc.)
+  const clearDataForSection = async (setter, tableName, endpoint) => {
+    try {
+      const itemsToDelete = await new Promise(resolve => {
+        setter(prevState => {
+          const toDelete = prevState.filter(item => item.id != null);
+          resolve(toDelete);
+          return prevState; // Don't modify the state yet
+        });
+      });
+
+      if (itemsToDelete.length === 0) {
+        return;
+      }
+
+      const deletePromises = itemsToDelete.map(item => 
+        authenticatedRequest(`http://localhost:8000/${endpoint}/delete-item/${item.id}/${projectId}?table=${tableName}`, 'DELETE')
+      );
+
+      await Promise.all(deletePromises);
+
+      setter(() => [{ description: '', amount: '' }]);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Clears all data from a Financial and Capital cost section
+  const clearSpecialSection = async (setter, sectionName, deleteHandler) => {
+    try {
+      const itemsToDelete = await new Promise(resolve => {
+        setter(prevState => {
+          resolve([...prevState]);
+          return prevState; // Don't modify the state yet
+        });
+      });
+
+      if (itemsToDelete.length === 0) {
+        return;
+      }
+
+      for (let i = itemsToDelete.length - 1; i >= 0; i--) {
+        await deleteHandler(i);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+  // Clears all data from Revenue section
+  const clearRevenueSection = async (setter, sectionName, deleteHandler) => {
+    try {
+      const itemsToDelete = await new Promise(resolve => {
+        setter(prevState => {
+          resolve([...prevState]);
+          return prevState; // Don't modify the state yet
+        });
+      });
+
+      if (itemsToDelete.length === 0) {
+        return;
+      }
+
+      for (let item of itemsToDelete) {
+        if (item.id) {
+          await deleteHandler(item.id);
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+ // Clears all data from EmployeePayroll Section 
+  const clearEmployeePayrollSection = async (setter, deleteHandler) => {
+    try {
+      const itemsToDelete = await new Promise(resolve => {
+        setter(prevState => {
+          resolve([...prevState]);
+          return prevState; // Don't modify the state yet
+        });
+      });
+
+      if (itemsToDelete.length === 0) {
+        return;
+      }
+
+      for (let i = itemsToDelete.length - 1; i >= 0; i--) {
+        await deleteHandler(i);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
   
 
-
+  
   // =============================================================================
   // JSX Rendering
   // =============================================================================
@@ -1500,8 +1526,8 @@ const handleSaveEmployeePayroll = async () => {
         </div>
       )}
 
-   {/* Floating Error Message */}
-   {showError && error && (
+      {/* Floating Error Message */}
+      {showError && error && (
         <div className="floating-error">
           <span>{error}</span>
           <button className="close-error-btn" onClick={() => setShowError(false)}>
@@ -1509,6 +1535,7 @@ const handleSaveEmployeePayroll = async () => {
           </button>
         </div>
       )}
+
       {/* Navigation Tabs */}
       <nav className="nav nav-tabs justify-content-center">
         <div className="nav nav-tabs" id="nav-tab" role="tablist">

@@ -54,6 +54,7 @@ const OperationsFinanceModel = {
     if (error) throw error;
     return result;
   },
+  
   async addRevenueForecasts(forecasts, projectId) {
     const forecastsToInsert = forecasts.map(forecast => ({
       project_id: projectId,
@@ -73,8 +74,6 @@ const OperationsFinanceModel = {
     return this.getRevenueForecasts(projectId);
   },
   
-
-
   async getRevenueForecasts(projectId) {
     const { data, error } = await supabase
       .from('revenue_forecasts')
@@ -113,47 +112,47 @@ const OperationsFinanceModel = {
     return this.getRevenueForecasts(projectId);
   },
 
+  async deleteRevenueForecast(projectId, forecastId) {
+    const { error: deleteError } = await supabase
+      .from('revenue_forecasts')
+      .delete()
+      .eq('id', forecastId)
+      .eq('project_id', projectId);
 
-async deleteRevenueForecast(projectId, forecastId) {
-  const { error: deleteError } = await supabase
-    .from('revenue_forecasts')
-    .delete()
-    .eq('id', forecastId)
-    .eq('project_id', projectId);
+    if (deleteError) throw deleteError;
 
-  if (deleteError) throw deleteError;
+    const { data: remainingForecasts, error: fetchError } = await supabase
+      .from('revenue_forecasts')
+      .select('*')
+      .eq('project_id', projectId)
+      .order('created_at');
 
-  const { data: remainingForecasts, error: fetchError } = await supabase
-    .from('revenue_forecasts')
-    .select('*')
-    .eq('project_id', projectId)
-    .order('created_at');
+    if (fetchError) throw fetchError;
 
-  if (fetchError) throw fetchError;
+    return remainingForecasts;
+  },
 
-  return remainingForecasts;
-},
-async deleteItem(itemId, table, projectId, authUserId) {
-  // Verify project ownership
-  const { data: project, error: projectError } = await supabase
-    .from('projects')
-    .select('id')
-    .eq('id', projectId)
-    .eq('auth_user_id', authUserId)
-    .single();
+  async deleteItem(itemId, table, projectId, authUserId) {
+    // Verify project ownership
+    const { data: project, error: projectError } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('id', projectId)
+      .eq('auth_user_id', authUserId)
+      .single();
 
-  if (projectError || !project) {
-    throw new Error('Project not found or unauthorized');
+    if (projectError || !project) {
+      throw new Error('Project not found or unauthorized');
+    }
+
+    const { error } = await supabase
+      .from(table)
+      .delete()
+      .eq('id', itemId)
+      .eq('project_id', projectId);
+
+    if (error) throw error;
   }
-
-  const { error } = await supabase
-    .from(table)
-    .delete()
-    .eq('id', itemId)
-    .eq('project_id', projectId);
-
-  if (error) throw error;
-}
 };
 
 export default OperationsFinanceModel;

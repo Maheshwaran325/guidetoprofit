@@ -1,3 +1,20 @@
+``In Frontend need to add .env.local  file``
+
+REACT_APP_SUPABASE_URL=key
+
+REACT_APP_SUPABASE_ANON_KEY=key
+
+
+``In Backend need to add .env``
+
+PORT=8000
+SUPABASE_URL=key
+SUPABASE_KEY=key
+JWT_SECRET=token
+
+GEMINI_API_KEY=key
+
+<h2> IGNORE BELOW </h2>
 In Forecast Profit & Loss in Sales 
  Other Cash Receipts Input is Missing
 

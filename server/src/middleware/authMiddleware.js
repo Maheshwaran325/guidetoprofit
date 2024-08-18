@@ -40,6 +40,7 @@
 // };
 
 import supabase from '../config/supabase.js';
+import logger from '../../logger.js';
 
 export const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -53,7 +54,7 @@ export const authenticateToken = async (req, res, next) => {
     const { data, error } = await supabase.auth.getUser(token);
 
     if (error) {
-      console.error('Supabase auth error:', error.message);
+      logger.error('Supabase auth error:', error.message);
       return res.status(403).json({ error: 'Invalid token' });
     }
 
@@ -64,7 +65,7 @@ export const authenticateToken = async (req, res, next) => {
     req.user = data.user;
     next();
   } catch (error) {
-    console.error('Error verifying token:', error.message);
+    logger.error('Error verifying token:', error.message);
     return res.status(500).json({ error: 'Internal server error during authentication' });
   }
 };
