@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Modal from 'react-modal';
 import { ProjectProvider } from './ProjectContext';
 import { AuthProvider } from './auth/AuthContext';
 import PrivateRoute from './auth/PrivateRoute';
@@ -19,6 +20,8 @@ import BackToTopButton from '../src/components/backtotop/backtotop.jsx';
 import Glossary from './pages/glossary/glossary.jsx';
 
 import './App.css';
+
+Modal.setAppElement('#root');
 
 function App() {
   return (

@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import logger from '../../../../logger.js';
 
 // Initialize the Gemini API client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -51,7 +52,8 @@ const systemPrompt = `
 
 `;
 
-export const generateChatResponse = async (message, userInfo) => {
+
+export const generateChatResponse = async (message, userProfile) => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
@@ -63,10 +65,10 @@ export const generateChatResponse = async (message, userInfo) => {
             text: `${systemPrompt}
 
         I am running a startup with the following details:
-        Startup Stage: ${userInfo[0]}
-        Industry Type: ${userInfo[1]}
-        Business Model: ${userInfo[2]}
-        Company Description: ${userInfo[3]}
+        Startup Stage: ${userProfile.startup_stage || 'Not specified'}
+        Industry Type: ${userProfile.industry_type || 'Not specified'}
+        Business Model: ${userProfile.business_model || 'Not specified'}
+        Company Description: ${userProfile.company_description || 'Not specified'}
         Please provide financial advice based on this information.`
           }]
         },
@@ -86,7 +88,7 @@ export const generateChatResponse = async (message, userInfo) => {
     const response = result.response;
     return response.text();
   } catch (error) {
-    console.error('Error generating chat response:', error);
+    logger.error('Error generating chat response:', error);
     throw error;
   }
 };

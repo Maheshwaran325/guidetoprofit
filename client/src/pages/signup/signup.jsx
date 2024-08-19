@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './signup.css';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
@@ -21,29 +21,37 @@ function Signup() {
   const navigate = useNavigate();
   const { signUp } = useAuth();
 
+  useEffect(() => {
+    setError(null);
+  }, [email, password, name, confirmPassword]);
+
   const handleInitialSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+  
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       setLoading(false);
       return;
     }
-
+  
     if (password.length < 6) {
       setError("Password must be at least 6 characters long");
       setLoading(false);
       return;
     }
-
+  
     try {
       const { data, error } = await signUp({ email, password, name });
       
-      if (error) throw error;
-
-      if (data) {
+      if (error) {
+        if (error.message === 'User with this email already exists') {
+          setError('An account with this email already exists. Please use a different email or try logging in.');
+        } else {
+          throw error;
+        }
+      } else if (data) {
         setSignupStage('otp');
       }
     } catch (error) {
@@ -60,7 +68,7 @@ function Signup() {
     setError(null);
 
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
+      const { error } = await supabase.auth.verifyOtp({
         email,
         token: otp,
         type: 'signup'
@@ -68,7 +76,6 @@ function Signup() {
 
       if (error) throw error;
 
-      console.log('OTP verification successful', data);
       alert('Email verified successfully!');
       
       navigate('/login');

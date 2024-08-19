@@ -1061,7 +1061,6 @@ function Entryitems() {
   // Checks if the initial submission for the project has been completed.
   const checkInitialSubmitStatus = useCallback(async () => {
     if (!projectId) {
-      console.log('Project ID not available yet');
       return;
     }
 
@@ -1171,9 +1170,8 @@ function Entryitems() {
       }
   
       const requestData = { projectId, startupCosts, startupCapital, capitalWorkProgress, startingOperations };
-      const response = await authenticatedRequest('http://localhost:8000/startup-cost/startup-data', 'POST', requestData);
+      await authenticatedRequest('http://localhost:8000/startup-cost/startup-data', 'POST', requestData);
       
-      console.log('Server response:', response);
       await triggerAllRecalculations(projectId);
       fetchProjectData(); // Refresh data after submission
     } catch (err) {
@@ -1214,10 +1212,8 @@ function Entryitems() {
         cashFlow: cashFlow.filter(item => item.description && item.amount),
       };
       
-      console.log('Submitting request with data:', requestData);
-      const response = await authenticatedRequest('http://localhost:8000/funding/funding-data', 'POST', requestData);
+      await authenticatedRequest('http://localhost:8000/funding/funding-data', 'POST', requestData);
       
-      console.log('Server response:', response);
       await triggerAllRecalculations(projectId);
       fetchFundingData(); // Refresh data after submission
     } catch (err) {
@@ -1257,7 +1253,6 @@ function Entryitems() {
       const response = await authenticatedRequest('http://localhost:8000/operations/submit-data', 'POST', requestData);
   
       if (response.data && response.data.message) {
-        console.log('Data submitted successfully:', response.data.message);
         await triggerAllRecalculations(projectId);
         fetchOperationsFinanceData(); // Refresh data after submission
       } else {
@@ -1299,10 +1294,8 @@ function Entryitems() {
         ),
       };
       
-      console.log('Submitting request with data:', requestData);
       const response = await authenticatedRequest('http://localhost:8000/payroll/submit-data', 'POST', requestData);
       
-      console.log('Server response:', response);
       await triggerAllRecalculations(projectId);
       setEmployeePayrolls(response.data.employee_payrolls);
       fetchPayrollData(); // Refresh data after submission

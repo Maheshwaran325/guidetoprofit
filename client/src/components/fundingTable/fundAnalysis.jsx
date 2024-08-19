@@ -16,7 +16,6 @@ const FinancialAnalysis =  () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!projectId) {
-        console.log('No projectId available, skipping data fetch');
         return;
       }
 

@@ -10,21 +10,52 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sessionTimeout, setSessionTimeout] = useState(null);
-
-  const signUp = async (data) => {
-    const { data: signUpData, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
+  
+  const checkExistingUser = async (email) => {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email: email,
       options: {
-        data: { full_name: data.name }
+        shouldCreateUser: false,
       }
     });
-
-    if (error) throw error;
-
-    return { data: signUpData, error: null };
+  
+    if (error && error.status === 400) {
+      // If the error status is 400, it means the user doesn't exist
+      return false;
+    } else if (error) {
+      // For any other error, we throw it to be handled by the caller
+      throw error;
+    }
+  
+    // If we get here, it means the user exists
+    return true;
   };
 
+  const signUp = async (data) => {
+    try {
+      const userExists = await checkExistingUser(data.email);
+      if (userExists) {
+        throw new Error('User with this email already exists');
+      }
+
+      const { data: signUpData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: { full_name: data.name }
+        }
+      });
+
+      if (error) throw error;
+
+      return { data: signUpData, error: null };
+    } catch (error) {
+      return { data: null, error };
+    }
+  };
+
+
+ 
     const signIn = async (data) => {
     const { data: signInData, error } = await supabase.auth.signInWithPassword({
       email: data.email,

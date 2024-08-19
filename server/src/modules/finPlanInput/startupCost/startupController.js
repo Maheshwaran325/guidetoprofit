@@ -45,35 +45,3 @@ const StartupController = {
 };
 
 export default StartupController;
-
-// import StartupModel from './startupModel.js';
-
-// const StartupController = {
-//   async createStartupData(req, res) {
-//     try {
-//       console.log('Request body:', req.body);
-//       const { userId, projectId, startupCosts, startupCapital, capitalWorkProgress, startingOperations } = req.body;
-
-//       const startupCostsResult = await StartupModel.createStartupCost(startupCosts, projectId);
-//       const startupCapitalResult = await StartupModel.createStartupCapital(startupCapital, projectId);
-//       const capitalWorkProgressResult = await StartupModel.createCapitalWorkProgress(capitalWorkProgress, projectId);
-//       const startingOperationsResult = await StartupModel.createStartingOperations(startingOperations, projectId);
-    
-//       res.status(201).json({
-//         message: 'Startup data created successfully',
-//         projectId,
-//         data: {
-//           startupCosts: startupCostsResult.result,
-//           startupCapital: startupCapitalResult.result,
-//           capitalWorkProgress: capitalWorkProgressResult.result,
-//           startingOperations: startingOperationsResult.result,         
-//         }
-//       });
-//     } catch (error) {
-//       logger.error('Error in createStartupData:', error);
-//       res.status(500).json({ error: error.message, details: error.details });
-//     }
-//   }
-// };
-
-// export default StartupController;

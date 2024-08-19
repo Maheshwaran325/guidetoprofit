@@ -1,10 +1,13 @@
 import express from 'express';
-import { chatWithFinbot, getMessageCount } from './finbotController.js';
+import { chatWithFinbot,getMessageCount,getUserProfile,updateUserProfile,clearUserProfile } from './finbotController.js';
 import { authenticateToken } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 router.post('/chat', authenticateToken, chatWithFinbot);
 router.get('/chat/count', authenticateToken, getMessageCount);
+router.get('/profile', authenticateToken, getUserProfile);
+router.put('/profile', authenticateToken, updateUserProfile);
+router.delete('/profile', authenticateToken, clearUserProfile);
 
 export default router;

@@ -17,7 +17,6 @@ const BEAnalysis = () => {
 // Function to fetch break-even data
 const fetchBreakEvenData = async (sessionId, setBreakEvenData, setLoading, setError) => {
   if (!sessionId) {
-    console.log('No sessionId available, skipping data fetch');
     setError('No session data available. Please submit the break-even analysis form first.');
     setLoading(false);
     return;
@@ -49,7 +48,6 @@ const fetchBreakEvenData = async (sessionId, setBreakEvenData, setLoading, setEr
   }, [projectId]);
 
   useEffect(() => {
-    console.log('Break Even Data:', breakEvenData);
   }, [breakEvenData]);
 
   if (!projectId) {

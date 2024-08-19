@@ -121,32 +121,3 @@ const OperationsFinanceController = {
 };
 
 export default OperationsFinanceController;
-
-
-// import OperationsFinanceModel from './operationsFinModel.js';
-
-// const OperationsFinanceController = {
-//   async createOperationsFinanceData(req, res) {
-//     try {
-//       console.log('Request body:', req.body);
-//       const { userId, projectId, revenueForecasts, variableCosts } = req.body;
-
-//       const revenueForecastsResult = await OperationsFinanceModel.createRevenueForecasts(revenueForecasts, projectId);
-//       const variableCostsResult = await OperationsFinanceModel.createVariableCosts(variableCosts, projectId);
-
-//       res.status(201).json({
-//         message: 'Operations & Finance data created successfully',
-//         projectId,
-//         data: {
-//           revenueForecasts: revenueForecastsResult.result,
-//           variableCosts: variableCostsResult.result,
-//         }
-//       });
-//     } catch (error) {
-//       logger.error('Error creating Operations & Finance data:', error);
-//       res.status(500).json({ error: error.message, details: error.details });
-//     }
-//   }
-// };
-
-// export default OperationsFinanceController;

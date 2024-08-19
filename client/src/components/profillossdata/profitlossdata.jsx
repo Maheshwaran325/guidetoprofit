@@ -17,7 +17,6 @@ const ProfitLossTable = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!projectId) {
-        console.log('No projectId available, skipping data fetch');
         return;
       }
 
@@ -89,8 +88,6 @@ const ProfitLossTable = () => {
       return <div>Error parsing data. Please check the console for more information.</div>;
     }
   }
-
-  console.log('Processed monthly results:', monthlyResults);
 
   if (!Array.isArray(monthlyResults) || monthlyResults.length === 0) {
     return <div>No monthly data available. Please check the console for more information.</div>;

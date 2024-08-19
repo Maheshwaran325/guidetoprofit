@@ -150,38 +150,3 @@ const FundingController = {
 
 export default FundingController;
 
-
-// import FundingModel from './fundingModel.js';
-
-// const FundingController = {
-//   async createFundingData(req, res) {
-//     try {
-//       console.log('Request body:', req.body);
-//       const { userId, projectId, fixedExpenses, assets, liabilities, capitalCosts, cashFlow } = req.body;
-
-//       const fixedExpensesResult = await FundingModel.createFixedExpenses(fixedExpenses, projectId);
-//       const assetsResult = await FundingModel.createAssets(assets, projectId);
-//       const liabilitiesResult = await FundingModel.createLiabilities(liabilities, projectId);
-//       const capitalCostsResult = await FundingModel.createCapitalCosts(capitalCosts, projectId);
-//       const cashFlowResult = await FundingModel.createCashFlow(cashFlow, projectId);
-
-//       res.status(201).json({
-//         message: 'Funding data created successfully',
-//         projectId,
-//         data: {
-//           fixedExpenses: fixedExpensesResult.result,
-//           assets: assetsResult.result,
-//           liabilities: liabilitiesResult.result,
-//           capitalCosts: capitalCostsResult.result,
-//           cashFlow: cashFlowResult.result,
-//         }
-//       });
-//     } catch (error) {
-//       logger.error('Error in createFundingData:', error);
-//       res.status(500).json({ error: error.message, details: error.details });
-//     }
-//   }
-// };
-
-// export default FundingController;
-

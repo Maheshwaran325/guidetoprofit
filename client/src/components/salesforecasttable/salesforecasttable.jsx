@@ -14,7 +14,6 @@ const SalesForecastTable = () => {
 
   const fetchData = useCallback(async () => {
     if (!projectId) {
-      console.log('No projectId available, skipping data fetch');
       return;
     }
 

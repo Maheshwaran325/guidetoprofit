@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { authenticatedRequest } from '../../utility/authenticatedRequestUtility'; 
 import Modal from 'react-modal';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -8,88 +8,121 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import './finbot.css';
 
-const MAX_MESSAGES_PER_DAY = 24;
+const MAX_MESSAGES_PER_DAY = 20;
 
 const Finbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     { text: 'Welcome to the Finbot!', sender: 'bot' },
-    { text: 'Before we start, I need to ask you 4 questions.', sender: 'bot' },
-    { text: 'What is your startup stage?', sender: 'bot' }
   ]);
   const [input, setInput] = useState('');
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [userInfo, setUserInfo] = useState([]);
-  const [, setIsInitialQuestionsComplete] = useState(false);
+  const [userProfile, setUserProfile] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
   const [messageCount, setMessageCount] = useState(0);
   const [, setLastResetDate] = useState(null);
 
   const chatContainerRef = useRef(null);
 
-  const questions = [
+  const questions = useMemo(() => [
     'What is your startup stage?',
     'What is your industry type?',
     'What is your business model?',
     'Describe your company/startup with some keywords for best results'
+  ], []);
+
+  const profileKeys = [
+    'startup_stage',
+    'industry_type',
+    'business_model',
+    'company_description'
   ];
 
-  useEffect(() => {
-    const fetchMessageCount = async () => {
-      try {
-        const response = await authenticatedRequest('http://localhost:8000/api/chat/count', 'GET');
-        setMessageCount(response.data.count);
-        setLastResetDate(response.data.lastResetDate);
-      } catch (error) {
-        console.error('Error fetching message count:', error);
+  const initializeProfileQuestions = useCallback(() => {
+    setMessages(prev => [
+      { text: 'Welcome to the Finbot!', sender: 'bot' },
+      { text: 'Before we start, I need to ask you 4 questions to set up your profile.', sender: 'bot' },
+      { text: questions[0], sender: 'bot' }
+    ]);
+    setUserProfile({});
+  }, [questions]);
+
+  const isProfileEmpty = (profile) => {
+    return !profile || Object.entries(profile).every(([key, value]) => 
+      key === 'user_id' || value === null || value === ''
+    );
+  };
+
+useEffect(() => {
+  const fetchUserProfile = async () => {
+    try {
+      const response = await authenticatedRequest('http://localhost:8000/api/profile', 'GET');
+      if (response.data && !isProfileEmpty(response.data)) {
+        setUserProfile(response.data);
+      } else {
+        initializeProfileQuestions();
       }
-    };
-
-    fetchMessageCount();
-  }, []);
-
-  useEffect(() => {
-    if (isOpen && chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      initializeProfileQuestions();
     }
-  }, [isOpen, messages]);
+  };
 
-  const sendMessage = useCallback((message, isUser = true) => {
-    if (messageCount >= MAX_MESSAGES_PER_DAY) {
-      alert("You've reached the maximum number of messages for today. Please try again tomorrow.");
-      return;
+  const fetchMessageCount = async () => {
+    try {
+      const response = await authenticatedRequest('http://localhost:8000/api/chat/count', 'GET');
+      setMessageCount(response.data.count);
+      setLastResetDate(response.data.lastResetDate);
+    } catch (error) {
+      console.error('Error fetching message count:', error);
     }
+  };
 
-    setMessages(prev => [...prev, { text: message, sender: isUser ? 'user' : 'bot' }]);
-    setMessageCount(prevCount => prevCount + 1);
-    setInput('');
-  }, [messageCount]);
+  fetchUserProfile();
+  fetchMessageCount();
+}, [initializeProfileQuestions]);
+
+
+ // Move this function outside of useEffect
+
 
   const handleFormSubmit = async () => {
     if (input.trim()) {
       sendMessage(input);
       
-      if (questionIndex < 4) {
-        setUserInfo(prev => [...prev, input]);
-        setQuestionIndex(prevIndex => prevIndex + 1);
-        if (questionIndex < 3) {
-          setIsTyping(true);
-          setTimeout(() => {
-            sendMessage(questions[questionIndex + 1], false);
-            setIsTyping(false);
-          }, 1000);
-        } else {
-          setIsInitialQuestionsComplete(true);
-          setIsTyping(true);
-          setTimeout(() => {
-            sendMessage('Thank you! You can now ask your financial questions.', false);
-            setIsTyping(false);
-          }, 1000);
+      if (!userProfile || Object.keys(userProfile).length < 4) {
+        const updatedProfile = { ...userProfile };
+        const currentQuestionIndex = Object.keys(updatedProfile).length;
+        const currentQuestion = questions[currentQuestionIndex];
+        
+        if (currentQuestion) {
+          const key = profileKeys[currentQuestionIndex];
+          updatedProfile[key] = input;
+          setUserProfile(updatedProfile);
+          
+          if (currentQuestionIndex < 3) {
+            setIsTyping(true);
+            setTimeout(() => {
+              sendMessage(questions[currentQuestionIndex + 1], false);
+              setIsTyping(false);
+            }, 1000);
+          } else {
+            try {
+              await authenticatedRequest('http://localhost:8000/api/profile', 'PUT', updatedProfile);
+              setIsTyping(true);
+              setTimeout(() => {
+                sendMessage('Thank you! Your profile has been created. You can now ask your financial questions.', false);
+                setIsTyping(false);
+              }, 1000);
+            } catch (error) {
+              console.error('Error updating user profile:', error);
+              sendMessage('Sorry, I encountered an error while updating your profile.', false);
+            }
+          }
         }
       } else {
         try {
           setIsTyping(true);
-          const response = await authenticatedRequest('http://localhost:8000/api/chat', 'POST', { message: input, userInfo });
+          const response = await authenticatedRequest('http://localhost:8000/api/chat', 'POST', { message: input });
           setIsTyping(false);
           sendMessage(response.data.message, false);
         } catch (error) {
@@ -101,17 +134,43 @@ const Finbot = () => {
       setInput('');
     }
   };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleFormSubmit();
     }
   };
 
+  const handleClearProfile = async () => {
+    try {
+      await authenticatedRequest('http://localhost:8000/api/profile', 'DELETE');
+      initializeProfileQuestions();
+    } catch (error) {
+      console.error('Error clearing user profile:', error);
+      sendMessage('Sorry, I encountered an error while clearing your profile.', false);
+    }
+  };
+
+  const sendMessage = useCallback((message, isUser = true) => {
+    if (messageCount >= MAX_MESSAGES_PER_DAY) {
+      alert("You've reached the maximum number of messages for today. Please try again tomorrow.");
+      return;
+    }
+
+    setMessages(prev => [...prev, { text: message, sender: isUser ? 'user' : 'bot' }]);
+    if (isUser) {
+      setMessageCount(prevCount => prevCount + 1);
+    }
+    setInput('');
+  }, [messageCount]);
+
   const renderInput = () => {
-    if (questionIndex < 4) {
+    if (!userProfile || Object.keys(userProfile).length < 4) {
+      const currentQuestionIndex = userProfile ? Object.keys(userProfile).length : 0;
+      const listId = `question-${currentQuestionIndex}`;
       return (
         <input
-          list={`question-${questionIndex}`}
+          list={listId}
           className="form-control"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -170,11 +229,19 @@ const Finbot = () => {
       >
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="m-0">Finbot:)</h5>
-          <button 
-            className="btn btn-close" 
-            onClick={() => setIsOpen(false)}
-            aria-label="Close"
-          ></button>
+          <div>
+            <button 
+              className="btn btn-sm btn-danger me-2"
+              onClick={handleClearProfile}
+            >
+              Clear Profile
+            </button >
+            <button 
+              className="btn btn-close" 
+              onClick={() => setIsOpen(false)}
+              aria-label="Close"
+            ></button>
+          </div>
         </div>
         <div 
           className="chat-container mb-3 flex-grow-1 overflow-auto"
@@ -182,8 +249,8 @@ const Finbot = () => {
         >
           {messages.map((msg, index) => (
             <div key={index} className={`chat-message ${msg.sender}`}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>           
-         </div>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>           
+            </div>
           ))}
           {isTyping && (
             <div className="chat-message bot">

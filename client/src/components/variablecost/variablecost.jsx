@@ -18,22 +18,17 @@ const VariableCostTable = React.memo(() => {
 
   const fetchData = useCallback(async () => {
     if (!projectId) {
-      console.log('No project ID available yet');
       return;
     }
 
     setIsLoading(true);
     setError(null);
     try {
-      console.log('Fetching data for projectId:', projectId);
       const response = await authenticatedRequest(`http://localhost:8000/cogs-calculator/data/${projectId}`);
-      console.log('Raw response:', response);
 
       if (!response || !response.data) {
         throw new Error('No data received from the server');
       }
-
-      console.log('Response data:', response.data);
 
       if (!response.data.inputData) {
         console.error('Input data is missing. Full response:', response);
