@@ -24,7 +24,7 @@ const VariableCostTable = React.memo(() => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/cogs-calculator/data/${projectId}`);
+      const response = await authenticatedRequest(`/cogs-calculator/data/${projectId}`);
 
       if (!response || !response.data) {
         throw new Error('No data received from the server');

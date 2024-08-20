@@ -37,8 +37,8 @@ const FinancialDashboard = React.memo(() => {
     setError(null);
     try {
       const [dashboardResponse, startupCostsResponse] = await Promise.all([
-        authenticatedRequest(`http://localhost:8000/financial-dashboard/data/${projectId}`),
-        authenticatedRequest(`http://localhost:8000/startup-cost-out/data/${projectId}`)
+        authenticatedRequest(`/financial-dashboard/data/${projectId}`),
+        authenticatedRequest(`/startup-cost-out/data/${projectId}`)
       ]);
 
       if (!dashboardResponse || !dashboardResponse.data) {

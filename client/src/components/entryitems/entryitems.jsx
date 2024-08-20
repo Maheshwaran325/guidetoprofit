@@ -38,7 +38,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
     }
     setIsLoading(true);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/operations/data/${projectId}`, 'GET');
+      const response = await authenticatedRequest(`/operations/data/${projectId}`, 'GET');
       if (response.data && Array.isArray(response.data.revenueForecasts)) {
         // Sort the fetched data based on the months array
         const sortedRevenueForecasts = response.data.revenueForecasts.sort(
@@ -130,7 +130,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
       }));
   
       const response = await authenticatedRequest(
-        `http://localhost:8000/operations/add-revenue-forecast/${projectId}`,
+        `/operations/add-revenue-forecast/${projectId}`,
         'POST',
         { forecasts: forecastsToSave }
       );
@@ -155,7 +155,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
   const handleDelete = useCallback(async (forecastId) => {
     try {
       const response = await authenticatedRequest(
-        `http://localhost:8000/operations/delete-revenue-forecast/${projectId}`,
+        `/operations/delete-revenue-forecast/${projectId}`,
         'DELETE',
         { forecastId }
       );
@@ -592,7 +592,7 @@ function Entryitems() {
           }
   
           // Delete from the server
-          authenticatedRequest(`http://localhost:8000/${endpoint}/delete-item/${itemToDelete.id}/${projectId}?table=${table}`, 'DELETE')
+          authenticatedRequest(`/${endpoint}/delete-item/${itemToDelete.id}/${projectId}?table=${table}`, 'DELETE')
             .catch(err => {
               console.error('Error deleting item from server:', err);
               setError('Failed to delete item from server. Please try again.');
@@ -745,14 +745,14 @@ function Entryitems() {
       if (editingIndex !== null) {
         // Update existing expense
         response = await authenticatedRequest(
-          `http://localhost:8000/funding/update-fixed-expense/${projectId}`,
+          `/funding/update-fixed-expense/${projectId}`,
           'PUT',
           expenseData
         );
       } else {
         // Add new expense
         response = await authenticatedRequest(
-          `http://localhost:8000/funding/add-fixed-expense/${projectId}`,
+          `/funding/add-fixed-expense/${projectId}`,
           'POST',
           expenseData
         );
@@ -792,14 +792,14 @@ function Entryitems() {
       if (editingIndex !== null) {
         // Update existing cost
         response = await authenticatedRequest(
-          `http://localhost:8000/funding/update-capital-cost/${projectId}`,
+          `/funding/update-capital-cost/${projectId}`,
           'PUT',
           costData
         );
       } else {
         // Add new cost
         response = await authenticatedRequest(
-          `http://localhost:8000/funding/add-capital-cost/${projectId}`,
+          `/funding/add-capital-cost/${projectId}`,
           'POST',
           costData
         );
@@ -836,7 +836,7 @@ function Entryitems() {
   // Delete a fixed expense
   const handleDeleteFixedExpense = async (index) => {
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/funding/delete-fixed-expense/${projectId}`, 'DELETE', { index });
+      const response = await authenticatedRequest(`/funding/delete-fixed-expense/${projectId}`, 'DELETE', { index });
       setFixedExpenses(response.data.fixed_expenses);
     } catch (err) {
       setError('Failed to delete fixed expense. Please try again.');
@@ -847,7 +847,7 @@ function Entryitems() {
   // Delete a capital cost
   const handleDeleteCapitalCost = async (index) => {
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/funding/delete-capital-cost/${projectId}`, 'DELETE', { index });
+      const response = await authenticatedRequest(`/funding/delete-capital-cost/${projectId}`, 'DELETE', { index });
       setCapitalCosts(response.data.capital_costs);
     } catch (err) {
       setError('Failed to delete fixed expense. Please try again.');
@@ -905,13 +905,13 @@ function Entryitems() {
       let response;
       if (editingIndexPayroll !== null) {
         response = await authenticatedRequest(
-          `http://localhost:8000/payroll/update-employee-payroll/${projectId}`,
+          `/payroll/update-employee-payroll/${projectId}`,
           'PUT',
           payrollData
         );
       } else {
         response = await authenticatedRequest(
-          `http://localhost:8000/payroll/add-employee-payroll/${projectId}`,
+          `/payroll/add-employee-payroll/${projectId}`,
           'POST',
           payrollData
         );
@@ -943,7 +943,7 @@ function Entryitems() {
   const handleDeleteEmployeePayroll = async (index) => {
     try {
       const response = await authenticatedRequest(
-        `http://localhost:8000/payroll/delete-employee-payroll/${projectId}`,
+        `/payroll/delete-employee-payroll/${projectId}`,
         'DELETE',
         { index }
       );
@@ -962,7 +962,7 @@ function Entryitems() {
   const fetchProjectData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/startup-cost/project-data/${projectId}`, 'GET');
+      const response = await authenticatedRequest(`/startup-cost/project-data/${projectId}`, 'GET');
       const data = response.data;
       setStartupCosts(data.startup_costs || []);
       setStartupCapital(data.startup_capital || []);
@@ -987,7 +987,7 @@ function Entryitems() {
   const fetchFundingData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/funding/project-data/${projectId}`, 'GET');
+      const response = await authenticatedRequest(`/funding/project-data/${projectId}`, 'GET');
       const data = response.data;
       setFixedExpenses(data.fixed_expenses || []);
       setCapitalCosts(data.capital_costs || []);
@@ -1013,7 +1013,7 @@ function Entryitems() {
   const fetchOperationsFinanceData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/operations/data/${projectId}`, 'GET');
+      const response = await authenticatedRequest(`/operations/data/${projectId}`, 'GET');
       const data = response.data;
       setRevenueForecasts(data.revenueForecasts || []);
       setVariableCosts(data.variableCosts || []);
@@ -1036,7 +1036,7 @@ function Entryitems() {
   const fetchPayrollData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/payroll/project-data/${projectId}`, 'GET');
+      const response = await authenticatedRequest(`/payroll/project-data/${projectId}`, 'GET');
       const data = response.data;
       setEmployeePayrolls(data.employee_payrolls || []);
     } catch (err) {
@@ -1067,7 +1067,7 @@ function Entryitems() {
     setIsLoading(true);
     try {
       const response = await authenticatedRequest(
-        `http://localhost:8000/project/${projectId}/check-initial-submit`,
+        `/project/${projectId}/check-initial-submit`,
         'GET'
       );
    // Access the isComplete property within the data object
@@ -1122,13 +1122,13 @@ function Entryitems() {
       const payrollData = { userId: user.id, projectId, employeePayrolls };
   
       // Submit data to existing endpoints without triggering recalculations
-      await authenticatedRequest('http://localhost:8000/startup-cost/startup-data', 'POST', startupData);
-      await authenticatedRequest('http://localhost:8000/funding/funding-data', 'POST', fundingData);
-      await authenticatedRequest('http://localhost:8000/operations/submit-data', 'POST', operationsData);
-      await authenticatedRequest('http://localhost:8000/payroll/submit-data', 'POST', payrollData);
+      await authenticatedRequest('/startup-cost/startup-data', 'POST', startupData);
+      await authenticatedRequest('/funding/funding-data', 'POST', fundingData);
+      await authenticatedRequest('/operations/submit-data', 'POST', operationsData);
+      await authenticatedRequest('/payroll/submit-data', 'POST', payrollData);
   
       // Trigger recalculations only once after all data is submitted
-      await authenticatedRequest(`http://localhost:8000/project/${projectId}/mark-initial-submit-complete`, 'POST');
+      await authenticatedRequest(`/project/${projectId}/mark-initial-submit-complete`, 'POST');
       
       // Refresh all data
       await fetchProjectData();
@@ -1170,7 +1170,7 @@ function Entryitems() {
       }
   
       const requestData = { projectId, startupCosts, startupCapital, capitalWorkProgress, startingOperations };
-      await authenticatedRequest('http://localhost:8000/startup-cost/startup-data', 'POST', requestData);
+      await authenticatedRequest('/startup-cost/startup-data', 'POST', requestData);
       
       await triggerAllRecalculations(projectId);
       fetchProjectData(); // Refresh data after submission
@@ -1212,7 +1212,7 @@ function Entryitems() {
         cashFlow: cashFlow.filter(item => item.description && item.amount),
       };
       
-      await authenticatedRequest('http://localhost:8000/funding/funding-data', 'POST', requestData);
+      await authenticatedRequest('/funding/funding-data', 'POST', requestData);
       
       await triggerAllRecalculations(projectId);
       fetchFundingData(); // Refresh data after submission
@@ -1250,7 +1250,7 @@ function Entryitems() {
         variableCosts: variableCosts.filter(item => item.description && item.amount),
       };
       
-      const response = await authenticatedRequest('http://localhost:8000/operations/submit-data', 'POST', requestData);
+      const response = await authenticatedRequest('/operations/submit-data', 'POST', requestData);
   
       if (response.data && response.data.message) {
         await triggerAllRecalculations(projectId);
@@ -1294,7 +1294,7 @@ function Entryitems() {
         ),
       };
       
-      const response = await authenticatedRequest('http://localhost:8000/payroll/submit-data', 'POST', requestData);
+      const response = await authenticatedRequest('/payroll/submit-data', 'POST', requestData);
       
       await triggerAllRecalculations(projectId);
       setEmployeePayrolls(response.data.employee_payrolls);
@@ -1322,7 +1322,7 @@ function Entryitems() {
       ];
   
       const recalculationPromises = endpoints.map(endpoint => 
-        authenticatedRequest(`http://localhost:8000${endpoint}/${projectId}`, 'GET')
+        authenticatedRequest(`${endpoint}/${projectId}`, 'GET')
           .catch(error => ({ endpoint, error })) // Catch errors for each request
       );
   
@@ -1392,7 +1392,7 @@ function Entryitems() {
     if (!projectId) {
       throw new Error('Project ID is not available. Please try again later.');
     }
-   await authenticatedRequest(`http://localhost:8000/project/${projectId}/mark-initial-submit-incomplete`, 'POST');
+   await authenticatedRequest(`/project/${projectId}/mark-initial-submit-incomplete`, 'POST');
 
       await Promise.all([
         fetchProjectData(),
@@ -1421,7 +1421,7 @@ function Entryitems() {
       }
 
       const deletePromises = itemsToDelete.map(item => 
-        authenticatedRequest(`http://localhost:8000/${endpoint}/delete-item/${item.id}/${projectId}?table=${tableName}`, 'DELETE')
+        authenticatedRequest(`/${endpoint}/delete-item/${item.id}/${projectId}?table=${tableName}`, 'DELETE')
       );
 
       await Promise.all(deletePromises);

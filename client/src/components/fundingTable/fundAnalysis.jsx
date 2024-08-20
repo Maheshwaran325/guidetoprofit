@@ -24,8 +24,8 @@ const FinancialAnalysis =  () => {
 
       try {
         const [financialResponse, startupCostsResponse] = await Promise.all([
-          authenticatedRequest(`http://localhost:8000/funding-out/calculations/${projectId}`),
-          authenticatedRequest(`http://localhost:8000/startup-cost-out/data/${projectId}`)
+          authenticatedRequest(`/funding-out/calculations/${projectId}`),
+          authenticatedRequest(`/startup-cost-out/data/${projectId}`)
         ]);
 
         if (!financialResponse || !financialResponse.data || !startupCostsResponse || !startupCostsResponse.data) {

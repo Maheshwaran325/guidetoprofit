@@ -91,3 +91,10 @@
 2024-08-19 11:00:42 info: 	Server is running on port 8000
 2024-08-19 11:02:54 info: 	Server is running on port 8000
 2024-08-19 13:40:31 info: 	Server is running on port 8000
+2024-08-19 14:17:01 info: 	Server is running on port 8000
+2024-08-19 14:23:00 info: 	Server is running on port 8000
+2024-08-19 15:15:43 info: 	Server is running on port 8000
+2024-08-19 15:36:18 error: 	Error in getCalculations: No sales forecast data found for project 716e91cf-e4a0-4511-8f6a-d2a0068ee19a
+2024-08-19 15:36:18 error: 	Error in getCalculations: No sales forecast data found for project 716e91cf-e4a0-4511-8f6a-d2a0068ee19a
+2024-08-19 15:36:21 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-19 15:36:22 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')

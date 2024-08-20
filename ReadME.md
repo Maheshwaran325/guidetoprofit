@@ -28,6 +28,8 @@ In Forecast Profit & Loss in Sales
 ├── src/
 │   ├── App.js
 │   ├── App.css
+│   ├── index.js
+│   ├── index.css
 │   ├── components/
 │   │   ├── backtotop/
 │   │   │   ├── backtotop.jsx
@@ -93,12 +95,16 @@ In Forecast Profit & Loss in Sales
 |   |     ├── authenticatedRequestUtility.js
 │   └── ProjectContext.js
 │
+├── .env.development
+├── .env.production
+├── .env.local
 ├── .gitignore
 └── package.json
 
 server/
 │
 ├── .gitignore
+├── logger.js
 ├── app.js
 ├── server.js
 ├── .env
@@ -113,6 +119,15 @@ server/
     │           ├── authController.js 
     │           ├── authModel.js 
     │           └── authRoutes.js
+    │     └── dashboard/ 
+    │           ├── dashboardController.js 
+    │           ├── dashboardModel.js 
+    │           └── dashboardRoutes.js
+    │     └── finbot/ 
+    │           ├── finbotController.js 
+    │           ├── finbotModel.js 
+    │           └── finbotRoutes.js
+    │           └── userProfileModels.js
     │   ├── finOutput/
     │   │   ├── breakEvenAnalysis/
     │   │   │   ├── breakEvenCalc.js

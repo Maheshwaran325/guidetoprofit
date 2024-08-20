@@ -20,7 +20,7 @@ const SalesForecastTable = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/sales-forecast/data/${projectId}`);
+      const response = await authenticatedRequest(`/sales-forecast/data/${projectId}`);
       setForecastData(response.data);
     } catch (error) {
       console.error('Error fetching forecast data:', error);

@@ -26,8 +26,8 @@ const fetchBreakEvenData = async (sessionId, setBreakEvenData, setLoading, setEr
   setError(null);
   try {
     const [breakEvenResponse, startupCostsResponse] = await Promise.all([
-      authenticatedRequest(`http://localhost:8000/break-even-analysis/data/${sessionId}`),
-      authenticatedRequest(`http://localhost:8000/startup-cost-out/data/${sessionId}`)
+      authenticatedRequest(`/break-even-analysis/data/${sessionId}`),
+      authenticatedRequest(`/startup-cost-out/data/${sessionId}`)
     ]);
 
     if (!breakEvenResponse || !breakEvenResponse.data || !startupCostsResponse || !startupCostsResponse.data) {

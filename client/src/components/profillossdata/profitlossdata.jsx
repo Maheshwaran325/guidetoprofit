@@ -23,7 +23,7 @@ const ProfitLossTable = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await authenticatedRequest(`http://localhost:8000/forecast-pl/data/${projectId}`);
+        const response = await authenticatedRequest(`/forecast-pl/data/${projectId}`);
         if (!response || !response.data) {
           throw new Error('No data received from the server');
         }

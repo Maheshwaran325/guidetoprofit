@@ -24,7 +24,7 @@ function EmployeeSalariesTable() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await authenticatedRequest(`http://localhost:8000/salaries/data/${projectId}`);
+        const response = await authenticatedRequest(`/salaries/data/${projectId}`);
         setSalariesData(response.data);
       } catch (error) {
         console.error('Error fetching data:', error);

@@ -55,7 +55,7 @@ const Finbot = () => {
 useEffect(() => {
   const fetchUserProfile = async () => {
     try {
-      const response = await authenticatedRequest('http://localhost:8000/api/profile', 'GET');
+      const response = await authenticatedRequest('/api/profile', 'GET');
       if (response.data && !isProfileEmpty(response.data)) {
         setUserProfile(response.data);
       } else {
@@ -69,7 +69,7 @@ useEffect(() => {
 
   const fetchMessageCount = async () => {
     try {
-      const response = await authenticatedRequest('http://localhost:8000/api/chat/count', 'GET');
+      const response = await authenticatedRequest('/api/chat/count', 'GET');
       setMessageCount(response.data.count);
       setLastResetDate(response.data.lastResetDate);
     } catch (error) {
@@ -107,7 +107,7 @@ useEffect(() => {
             }, 1000);
           } else {
             try {
-              await authenticatedRequest('http://localhost:8000/api/profile', 'PUT', updatedProfile);
+              await authenticatedRequest('/api/profile', 'PUT', updatedProfile);
               setIsTyping(true);
               setTimeout(() => {
                 sendMessage('Thank you! Your profile has been created. You can now ask your financial questions.', false);
@@ -122,7 +122,7 @@ useEffect(() => {
       } else {
         try {
           setIsTyping(true);
-          const response = await authenticatedRequest('http://localhost:8000/api/chat', 'POST', { message: input });
+          const response = await authenticatedRequest('/api/chat', 'POST', { message: input });
           setIsTyping(false);
           sendMessage(response.data.message, false);
         } catch (error) {
@@ -143,7 +143,7 @@ useEffect(() => {
 
   const handleClearProfile = async () => {
     try {
-      await authenticatedRequest('http://localhost:8000/api/profile', 'DELETE');
+      await authenticatedRequest('/api/profile', 'DELETE');
       initializeProfileQuestions();
     } catch (error) {
       console.error('Error clearing user profile:', error);

@@ -7,7 +7,7 @@ export const setResetSessionTimeout = (fn) => {
   resetSessionTimeout = fn;
 };
 
-export const authenticatedRequest = async (url, method = 'GET', data = null) => {
+export const authenticatedRequest = async (endpoint, method = 'GET', data = null) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     const token = session?.access_token;
@@ -16,6 +16,13 @@ export const authenticatedRequest = async (url, method = 'GET', data = null) => 
       throw new Error('No access token available');
     }
 
+    const baseUrl = process.env.REACT_APP_API_URL;
+
+    if (!baseUrl) {
+      throw new Error('API URL is not defined in environment variables');
+    }
+
+    const url = `${baseUrl}${endpoint}`;
     const config = {
       method,
       url,

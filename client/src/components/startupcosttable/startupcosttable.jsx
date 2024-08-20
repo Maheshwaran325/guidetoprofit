@@ -24,7 +24,7 @@ const Startupcosttable = React.memo(() => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await authenticatedRequest(`http://localhost:8000/startup-cost-out/data/${projectId}`);
+      const response = await authenticatedRequest(`/startup-cost-out/data/${projectId}`);
       
       if (!response || !response.data) {
         throw new Error('No data received from the server');
