@@ -73,7 +73,7 @@ function Login() {
         setProjectId(projectData.id);
       }
 
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message);

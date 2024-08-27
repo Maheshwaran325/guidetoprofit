@@ -125,7 +125,7 @@ const Calculator = () => {
           fontSize: '19px',
           position: 'fixed',
           zIndex: 1000,
-          bottom: '80px',
+          bottom: '140px',
           right: '20px',
           backgroundColor:'#F16635',
           color:'#fff'
