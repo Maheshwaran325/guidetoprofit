@@ -1709,7 +1709,7 @@ function Entryitems() {
                       <small className="form-text text-muted">(Ex. Equipment Purchases, Facility Upgrades)</small>
                     </div>
                     <div className="col-sm-3 text-right">
-                      <button type="button" className="btn btn-add" onClick={() => handleModalOpen('capitalCost')}>Add Capital Cost</button>
+                      <button type="button" className="btn btn-add" onClick={() => handleModalOpen('capitalCost')}>Yearly Expenses</button>
                     </div>
                   </div>
                   {capitalCosts.map((cost, index) => (

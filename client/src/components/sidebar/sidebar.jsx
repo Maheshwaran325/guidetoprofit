@@ -12,7 +12,7 @@ function Sidebar({ setPageTitle }) {
           <img src={logo} alt="Logo"/>
         </span>
         <hr/>
-        <Link to="/" onClick={() => setPageTitle('Dashboard')}>Dashboard</Link>
+        <Link to="/dashboard" onClick={() => setPageTitle('Dashboard')}>Dashboard</Link>
         <hr/>
         <Link to="/entrylog" onClick={() => setPageTitle('Entry Log')}>Entry Log</Link>
         <Link to="/startupcost" onClick={() => setPageTitle('Startup Cost')}>Startup Cost</Link>

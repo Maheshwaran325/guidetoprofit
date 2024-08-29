@@ -151,22 +151,7 @@ const FinancialAnalysis =  () => {
           </div>
         </div>
       </div>
-
-      <div className="row mb-4">
-        {data.yearlyResults.map((yearData, index) => (
-          <div key={index} className="col-md-6 mb-4">
-            <div className="card shadow">
-              <div className="card-header">
-                <h5 className="card-title">Bar Chart (Year {index + 1})</h5>
-              </div>
-              <div className="card-body">
-                <Bar data={barChartData(yearData, index)} />
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      
       <div className="card shadow mt-4">
         <div className="card-header">
           <h5 className="card-title">Summary</h5>
@@ -178,6 +163,23 @@ const FinancialAnalysis =  () => {
           <p>Total Earnings: {data.totalEarnings ? `₹${data.totalEarnings.toLocaleString('en-IN')}` : 'N/A'}</p>
         </div>
       </div>
+
+      <div className="row mb-4">
+        {data.yearlyResults.map((yearData, index) => (
+          <div key={index} className="col-md-6 mb-4">
+            <div className="card shadow">
+              <div className="card-header">
+                <h5 className="card-title"> Year {index + 1}</h5>
+              </div>
+              <div className="card-body">
+                <Bar data={barChartData(yearData, index)} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+
     </div>
   );
 };
