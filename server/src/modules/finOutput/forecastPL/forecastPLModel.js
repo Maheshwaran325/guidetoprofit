@@ -19,10 +19,10 @@ const forecastPLModel = {
       return data;
     });
 
-    if (!revenueForecasts.length) throw new Error(`No revenue forecast data found for project ${projectId}`);
-    if (!fixedExpenses.length) throw new Error(`No fixed expenses data found for project ${projectId}`);
-    if (!salaryCalculations.length) throw new Error(`No salary calculations data found for project ${projectId}`);
-
+    if (!revenueForecasts.length || !fixedExpenses.length || !salaryCalculations.length) {
+      return null;
+    }
+  
     return { revenueForecasts, fixedExpenses, salaryCalculations };
   },
 

@@ -42,23 +42,24 @@ const salesForecastController = {
       
       // Fetch input data
       const inputData = await salesForecastModel.getSessionInputData(projectId);
-
+  
       if (!inputData) {
-        throw new Error(`No forecast data found for project ID: ${projectId}`); // More specific error message
+        return res.status(200).json({ message: 'No input data' });
       }
-
+  
       // Fetch existing calculations without recalculating
       const existingCalculations = await salesForecastModel.getCalculations(projectId);
-
+  
       res.status(200).json({
         revenue_forecasts: inputData,
         calculations: existingCalculations
       });
     } catch (error) {
       logger.error('Error in getProjectData:', error);
-      res.status(500).json({ error: error.message , stack: error.stack  }); // Send the specific error message to the user
+      res.status(500).json({ error: error.message, stack: error.stack });
     }
   }
+  
 };
 
 export default salesForecastController;

@@ -102,46 +102,85 @@ const fundingCalc = {
     return categoryAmount * monthsCount;
   },
 
-  async runCalculations(projectId) {
-    const projectData = await fundingModel.getProjectInputData(projectId);
-    const { salesForecasts, capitalCosts, totalFixedExpenses, fixedExpenses, totalSalary } = projectData;
+    // Other methods...
+  
+    async runCalculations(projectId) {
+      try {
+        const projectData = await fundingModel.getProjectInputData(projectId);
+        const { salesForecasts, capitalCosts, totalFixedExpenses, fixedExpenses, totalSalary } = projectData;
+  
+        if (!salesForecasts || salesForecasts.length === 0) {
+          return {
+            yearlyResults: this.getEmptyYearlyResults(),
+            totalFundingRequired: 0,
+            totalRevenue: 0,
+            totalGrossProfit: 0,
+            totalEarnings: 0
+          };
+        }
+  
+        const expensesData = this.calculateExpenses(totalFixedExpenses || 0);
+        const forecastData = salesForecasts[0] || {};
+  
+        const gross_profitYear1 = (forecastData.total_units_sold || 0) * ((forecastData.total_priceperunit || 0) - (forecastData.total_costperunit || 0));
+  
+        const year1 = {
+          number_of_sales: Math.round(forecastData.total_units_sold || 0),
+          avg_price_per_unit: Math.round(forecastData.total_priceperunit || 0),
+          avg_cost_per_unit: Math.round(forecastData.total_costperunit || 0),
+          value_of_each_sale: Math.round((forecastData.total_priceperunit || 0) - (forecastData.total_costperunit || 0)),
+          total_revenue: Math.round((forecastData.total_units_sold || 0) * (forecastData.total_priceperunit || 0)),
+          gross_profit: Math.round(gross_profitYear1),
+          capitalCosts: Math.round(this.calculateCapitalCostsForYear(capitalCosts || [], 1)),
+          expenses: Math.round(expensesData.year1),
+          earnings: Math.round(gross_profitYear1 - expensesData.year1),
+        };
+  
+        const year2 = this.calculateYearlySalesForecast(2, year1, expensesData, capitalCosts, fixedExpenses, totalSalary || 0);
+        const year3 = this.calculateYearlySalesForecast(3, year2, expensesData, capitalCosts, fixedExpenses, totalSalary || 0);
+        const year4 = this.calculateYearlySalesForecast(4, year3, expensesData, capitalCosts, fixedExpenses, totalSalary || 0);
+        const year5 = this.calculateYearlySalesForecast(5, year4, expensesData, capitalCosts, fixedExpenses, totalSalary || 0);
+  
+        const yearlyResults = [year1, year2, year3, year4, year5];
+        const totalFundingRequired = yearlyResults.reduce((acc, result) => acc + (result.capitalCosts || 0), 0);
+        const totalRevenue = yearlyResults.reduce((acc, result) => acc + (result.total_revenue || 0), 0);
+        const totalGrossProfit = yearlyResults.reduce((acc, result) => acc + (result.gross_profit || 0), 0);
+        const totalEarnings = yearlyResults.reduce((acc, result) => acc + (result.earnings || 0), 0);
+  
+        return {
+          yearlyResults,
+          totalFundingRequired: Math.round(totalFundingRequired),
+          totalRevenue: Math.round(totalRevenue),
+          totalGrossProfit: Math.round(totalGrossProfit),
+          totalEarnings: Math.round(totalEarnings),
+        };
+      } catch (error) {
+        logger.error('Error in runCalculations:', error);
+        return {
+          yearlyResults: this.getEmptyYearlyResults(),
+          totalFundingRequired: 0,
+          totalRevenue: 0,
+          totalGrossProfit: 0,
+          totalEarnings: 0
+        };
+      }
+    },
+  
+    getEmptyYearlyResults() {
+      return Array(5).fill({
+        number_of_sales: 0,
+        avg_price_per_unit: 0,
+        avg_cost_per_unit: 0,
+        value_of_each_sale: 0,
+        total_revenue: 0,
+        gross_profit: 0,
+        capitalCosts: 0,
+        expenses: 0,
+        earnings: 0
+      });
+    },
+  
 
-    const expensesData = this.calculateExpenses(totalFixedExpenses);
-    const forecastData = salesForecasts[0];
-    
-    const gross_profitYear1 = (forecastData.total_units_sold || 0) * ((forecastData.total_priceperunit || 0) - (forecastData.total_costperunit || 0));
-   
-    const year1 = {
-      number_of_sales: Math.round(forecastData.total_units_sold || 0),
-      avg_price_per_unit: Math.round(forecastData.total_priceperunit || 0),
-      avg_cost_per_unit: Math.round(forecastData.total_costperunit || 0),
-      value_of_each_sale: Math.round((forecastData.total_priceperunit || 0) - (forecastData.total_costperunit || 0)),
-      total_revenue: Math.round((forecastData.total_units_sold || 0) * (forecastData.total_priceperunit || 0)),
-      gross_profit: Math.round(gross_profitYear1),
-      capitalCosts: Math.round(this.calculateCapitalCostsForYear(capitalCosts, 1)),
-      expenses: Math.round(expensesData.year1),
-      earnings: Math.round(gross_profitYear1 - expensesData.year1),
-    };
-
-    const year2 = this.calculateYearlySalesForecast(2, year1, expensesData, capitalCosts, fixedExpenses, totalSalary);
-    const year3 = this.calculateYearlySalesForecast(3, year2, expensesData, capitalCosts, fixedExpenses, totalSalary);
-    const year4 = this.calculateYearlySalesForecast(4, year3, expensesData, capitalCosts, fixedExpenses, totalSalary);
-    const year5 = this.calculateYearlySalesForecast(5, year4, expensesData, capitalCosts, fixedExpenses, totalSalary);
-
-    const yearlyResults = [year1, year2, year3, year4, year5];
-    const totalFundingRequired = yearlyResults.reduce((acc, result) => acc + result.capitalCosts, 0);
-    const totalRevenue = yearlyResults.reduce((acc, result) => acc + result.total_revenue, 0);
-    const totalGrossProfit = yearlyResults.reduce((acc, result) => acc + result.gross_profit, 0);
-    const totalEarnings = yearlyResults.reduce((acc, result) => acc + result.earnings, 0);
-
-    return {
-      yearlyResults,
-      totalFundingRequired: Math.round(totalFundingRequired),
-      totalRevenue: Math.round(totalRevenue),
-      totalGrossProfit: Math.round(totalGrossProfit),
-      totalEarnings: Math.round(totalEarnings),
-    };
-  },
 };
 
 export default fundingCalc;

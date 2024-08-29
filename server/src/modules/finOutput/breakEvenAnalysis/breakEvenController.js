@@ -8,7 +8,17 @@ const breakEvenController = {
       const { projectId } = req.params;
 
       // Fetch input data and saved calculations
-      const { salesForecasts, forecastPL, breakEvenCalcs } = await breakEvenModel.getInputData(projectId);
+      const { salesForecasts, forecastPL } = await breakEvenModel.getInputData(projectId);
+
+      // If no data, return a meaningful message
+      if (!salesForecasts.length || !forecastPL.length) {
+        return res.status(200).json({
+          message: 'No input data available for calculations.',
+          sales_forecasts: salesForecasts,
+          forecast_pl: forecastPL,
+          calculations: null
+        });
+      }
 
        // Run calculations and save them, regardless of whether they exist
        const calculations = breakEvenCalc.runCalculations(salesForecasts, forecastPL);
@@ -41,7 +51,12 @@ const breakEvenController = {
       const { salesForecasts, forecastPL, breakEvenCalcs } = await breakEvenModel.getInputData(projectId);
 
       if (!breakEvenCalcs) {
-        throw new Error('No break-even calculations found for this project');
+        return res.status(200).json({
+          message: 'No break-even calculations found for this project',
+          sales_forecasts: salesForecasts,
+          forecast_pl: forecastPL,
+          calculations: null,
+        });
       }
 
       // Respond with the data

@@ -31,20 +31,21 @@ const forecastPLController = {
       res.status(500).json({ error: error.message, stack: error.stack });
     }
   },
+  
   async getProjectData(req, res) {
     try {
       const { projectId } = req.params;
-  
+    
       // Fetch input data
       const inputData = await forecastPLModel.getProjectInputData(projectId);
       if (!inputData) {
-        throw new Error('No forecast P&L data found for this project');
+        return res.status(200).json({ message: 'No forecast P&L data found for this project' });
       }
       const { revenueForecasts, fixedExpenses, salaryCalculations } = inputData;
-  
+    
       // Fetch existing calculations without recalculating
       const existingCalculations = await forecastPLModel.getCalculations(projectId);
-  
+    
       res.status(200).json({
         revenue_forecasts: revenueForecasts,
         fixed_expenses: fixedExpenses,

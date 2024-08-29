@@ -100,3 +100,82 @@
 2024-08-19 15:36:22 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
 2024-08-27 13:21:06 info: 	Server is running on port 8000
 2024-08-27 16:23:02 info: 	Server is running on port 8000
+2024-08-28 11:29:33 info: 	Server is running on port 8000
+2024-08-28 11:41:36 error: 	Error in getProjectData: No forecast data found for this project
+2024-08-28 11:41:36 error: 	Error in getProjectData: No forecast data found for this project
+2024-08-28 11:48:41 info: 	Server is running on port 8000
+2024-08-28 11:48:46 error: 	Error in getProjectData: No forecast data found for this project
+2024-08-28 11:48:46 error: 	Error in getProjectData: No forecast data found for this project
+2024-08-28 11:49:13 info: 	Server is running on port 8000
+2024-08-28 11:51:51 info: 	Server is running on port 8000
+2024-08-28 11:52:17 error: 	Error in getProjectData: No forecast data found for this project
+2024-08-28 11:52:18 error: 	Error in getProjectData: No forecast data found for this project
+2024-08-28 11:54:28 info: 	Server is running on port 8000
+2024-08-28 11:55:10 error: 	Error in getProjectData: No revenue forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 11:55:10 error: 	Error in getProjectData: No revenue forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 11:57:16 info: 	Server is running on port 8000
+2024-08-28 11:57:59 error: 	Error in getProjectData: No forecast P&L data found for this project
+2024-08-28 11:57:59 error: 	Error in getProjectData: No forecast P&L data found for this project
+2024-08-28 11:58:41 info: 	Server is running on port 8000
+2024-08-28 11:59:14 info: 	Server is running on port 8000
+2024-08-28 11:59:26 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 11:59:26 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:04:32 info: 	Server is running on port 8000
+2024-08-28 12:04:42 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:05:08 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:05:10 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:05:23 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:05:23 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:05:31 error: 	Error in getCalculations: No sales forecast data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:05:52 info: 	Server is running on port 8000
+2024-08-28 12:06:00 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:06:00 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:06:17 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:06:17 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:06:27 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 12:06:29 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 12:06:36 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:06:36 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:06:41 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 12:06:42 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 12:09:39 info: 	Server is running on port 8000
+2024-08-28 12:10:35 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:10:35 error: 	Error in getCalculations: Assignment to constant variable.
+2024-08-28 12:13:17 info: 	Server is running on port 8000
+2024-08-28 12:17:43 info: 	Server is running on port 8000
+2024-08-28 12:20:01 info: 	Server is running on port 8000
+2024-08-28 12:20:35 warn: 	No data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:20:35 warn: 	No data found for project 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:21:13 info: 	Server is running on port 8000
+2024-08-28 12:22:06 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 12:22:08 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 12:27:07 info: 	Server is running on port 8000
+2024-08-28 12:29:11 info: 	Server is running on port 8000
+2024-08-28 12:33:44 info: 	Server is running on port 8000
+2024-08-28 12:33:54 info: 	Server is running on port 8000
+2024-08-28 12:34:10 error: 	Error in getCalculations: No sales forecasts data found for project ID 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:34:11 error: 	Error in getCalculations: No sales forecasts data found for project ID 0a262493-82b7-43bf-962c-3c4d6f04ef65
+2024-08-28 12:34:49 info: 	Server is running on port 8000
+2024-08-28 14:02:02 info: 	Server is running on port 8000
+2024-08-28 14:03:39 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 14:03:41 error: 	Error in getCalculations: Cannot read properties of undefined (reading 'total_units_sold')
+2024-08-28 14:15:16 info: 	Server is running on port 8000
+2024-08-28 14:15:29 error: 	Error in runCalculations: Sales forecasts data is missing or empty
+2024-08-28 14:15:29 error: 	Error in getCalculations: Calculation failed. Please check the input data and try again.
+2024-08-28 14:15:30 error: 	Error in runCalculations: Sales forecasts data is missing or empty
+2024-08-28 14:15:30 error: 	Error in getCalculations: Calculation failed. Please check the input data and try again.
+2024-08-28 14:15:38 error: 	Error in runCalculations: Sales forecasts data is missing or empty
+2024-08-28 14:15:38 error: 	Error in getCalculations: Calculation failed. Please check the input data and try again.
+2024-08-28 14:16:21 error: 	Error in runCalculations: Sales forecasts data is missing or empty
+2024-08-28 14:16:21 error: 	Error in getCalculations: Calculation failed. Please check the input data and try again.
+2024-08-28 14:16:23 error: 	Error in runCalculations: Sales forecasts data is missing or empty
+2024-08-28 14:16:23 error: 	Error in getCalculations: Calculation failed. Please check the input data and try again.
+2024-08-28 14:19:55 info: 	Server is running on port 8000
+2024-08-28 14:19:59 info: 	Server is running on port 8000
+2024-08-28 14:21:27 info: 	Server is running on port 8000
+2024-08-28 14:21:39 error: 	Sales forecasts data is missing or empty
+2024-08-28 14:21:40 error: 	Sales forecasts data is missing or empty
+2024-08-28 14:21:59 error: 	Sales forecasts data is missing or empty
+2024-08-28 14:22:02 error: 	Sales forecasts data is missing or empty
+2024-08-28 14:22:02 error: 	Sales forecasts data is missing or empty
+2024-08-28 14:33:05 info: 	Server is running on port 8000

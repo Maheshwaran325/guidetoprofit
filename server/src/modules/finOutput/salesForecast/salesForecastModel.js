@@ -7,17 +7,14 @@ const salesForecastModel = {
       .from('revenue_forecasts')
       .select('*')
       .eq('project_id', projectId);
-
+  
     if (error) {
       throw new Error('Error fetching project input data');
     }
-
-    if (!Array.isArray(revenueForecasts) || revenueForecasts.length === 0) {
-      throw new Error('No forecast data found for this project');
-    }
-
-    return revenueForecasts;
+  
+    return revenueForecasts || [];
   },
+  
 
   async saveCalculations(projectId, calculations) {
     const { data, error } = await supabase

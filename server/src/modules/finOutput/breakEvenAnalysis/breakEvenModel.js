@@ -21,12 +21,13 @@ const breakEvenModel = {
       throw new Error('Error fetching forecast P&L data');
     }
 
-    if (!salesForecasts.length) {
-      throw new Error(`No sales forecast data found for project ${projectId}`);
-    }
-
-    if (!forecastPL.length) {
-      throw new Error(`No forecast P&L data found for project ${projectId}`);
+    // Instead of throwing an error, return null or an empty array when no data is found
+    if (!salesForecasts.length || !forecastPL.length) {
+      return {
+        salesForecasts: [],
+        forecastPL: [],
+        breakEvenCalcs: null
+      };
     }
 
     // Fetch the saved break-even calculations
