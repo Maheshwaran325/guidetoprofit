@@ -22,7 +22,17 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'https://cashcompassclient-aldlq5hiu-maheshwaran325s-projects.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -50,7 +60,7 @@ app.use('/payroll', payrollRoutes);
  app.use('/api', finbotRoutes); 
 
  // Add error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, res) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
   });
