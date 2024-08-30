@@ -17,22 +17,13 @@ import authRoutes from './src/modules/auth/authRoutes.js';
 import financialDashboardRoutes  from './src/modules/dashboard/dashboardRoutes.js';
 import finbotRoutes from './src/modules/finbot/finbotRoutes.js';
 import projectRoutes from './src/utils/initialsubmitRoutes.js';
+import corsOptions from './corsConfig.js';
 
 dotenv.config();
 
 const app = express();
 
-// CORS configuration
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'https://cashcompassclient-maheshwaran325s-projects.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  optionsSuccessStatus: 200
-};
-
 app.use(cors(corsOptions));
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -60,7 +51,7 @@ app.use('/payroll', payrollRoutes);
  app.use('/api', finbotRoutes); 
 
  // Add error handling middleware
-app.use((err, res) => {
+app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
   });
