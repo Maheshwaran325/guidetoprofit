@@ -49,7 +49,10 @@ app.use('/payroll', payrollRoutes);
 
  // Chatbot Routes
  app.use('/api', finbotRoutes); 
-
+ 
+ app.get('/test', (req, res) => {
+  res.json({ message: 'Server is running, CORS is configured' });
+});
  // Add error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);

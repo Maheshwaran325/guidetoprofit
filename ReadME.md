@@ -108,6 +108,7 @@ server/
 ├── app.js
 ├── server.js
 ├── .env
+├── vercel.json
 ├── package.json
 └── src/
     ├── config/ │
