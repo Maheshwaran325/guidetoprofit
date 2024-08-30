@@ -24,7 +24,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'https://cashcompassclient-hb69hu4h8-maheshwaran325s-projects.vercel.app',
+  origin: process.env.FRONTEND_URL || 'https://cashcompassclient-maheshwaran325s-projects.vercel.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
