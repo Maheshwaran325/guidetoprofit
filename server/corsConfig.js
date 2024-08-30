@@ -1,3 +1,4 @@
+import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -7,12 +8,13 @@ const corsOptions = {
     const allowedOrigins = [
       process.env.FRONTEND_URL,
       'https://cashcompassclient-maheshwaran325s-projects.vercel.app',
-      'http://localhost:3000' // Add your local development URL
+      'http://localhost:3000'
     ];
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log('Origin not allowed by CORS:', origin);
+      callback(null, true); // Allow all origins during testing
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
