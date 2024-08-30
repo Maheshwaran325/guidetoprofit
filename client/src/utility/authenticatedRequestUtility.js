@@ -14,7 +14,7 @@ export const authenticatedRequest = async (endpoint, method = 'GET', data = null
       throw new Error('No access token available');
     }
 
-    const baseUrl = process.env.REACT_APP_API_URL || 'https://cashcompassserver-maheshwaran325s-projects.vercel.app';
+    const baseUrl = process.env.REACT_APP_API_URL || 'https://guidetoprofit.vercel.app';
     if (!baseUrl) {
       throw new Error('API URL is not defined in environment variables');
     }
