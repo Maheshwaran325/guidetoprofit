@@ -50,6 +50,10 @@ app.use('/payroll', payrollRoutes);
  // Chatbot Routes
  app.use('/api', finbotRoutes); 
  
+ app.get('/', (req, res) => {
+  res.send('Server is running');
+});
+
  app.get('/test', (req, res) => {
   res.json({ message: 'Server is running, CORS is configured' });
 });
