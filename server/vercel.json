@@ -9,10 +9,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "/server.js"
     }
-  ],
-  "env": {
-    "FRONTEND_URL": "https://cashcompassclient-maheshwaran325s-projects.vercel.app"
-  }
+  ]
 }
