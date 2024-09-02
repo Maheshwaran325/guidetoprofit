@@ -5,6 +5,7 @@ import { useProject } from '../../ProjectContext';
 import { useAuth } from '../../auth/AuthContext'; 
 import { Modal, Button, Form, Table  } from 'react-bootstrap'; 
 import { authenticatedRequest } from '../../utility/authenticatedRequestUtility'; 
+import LoadingIcon from '../loadingicon/loadingicon';
 
 // icons
 import { MdEdit } from "react-icons/md";
@@ -13,6 +14,15 @@ import { MdOutlineDeleteOutline } from "react-icons/md";
 // Constants for months and years
 const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const years = ['Year1', 'Year2', 'Year3', 'Year4', 'Year5'];
+
+const LoadingOverlay = () => (
+  <div className="loading-overlay">
+    <div className="loading-content">
+      <LoadingIcon />
+      <p className="loading-text">Submitting...</p>
+    </div>
+  </div>
+);
 // =============================================================================
 // RevenueForecasts Component
 // =============================================================================
@@ -155,11 +165,10 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
   const handleDelete = useCallback(async (forecastId) => {
     try {
       const response = await authenticatedRequest(
-        `/operations/delete-revenue-forecast/${projectId}`,
-        'DELETE',
-        { forecastId }
+        `/operations/delete-revenue-forecast/${projectId}?forecastId=${forecastId}`,
+        'DELETE'
       );
-
+  
       if (response.data && Array.isArray(response.data.revenueForecasts)) {
         setMonthlyData(response.data.revenueForecasts);
         onDataUpdate(response.data.revenueForecasts);
@@ -171,7 +180,7 @@ const RevenueForecasts = ({ onDataUpdate, projectId, fetchData, setHandleDelete 
       setError(`Failed to delete revenue forecast: ${err.message}`);
     }
   }, [projectId, onDataUpdate, fetchData, setError]);
-
+  
   useEffect(() => {
     setHandleDelete(() => handleDelete);
   }, [setHandleDelete, handleDelete]);
@@ -342,9 +351,10 @@ function Entryitems() {
   const [selectedYears, setSelectedYears] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
   // const tabs = ['nav-startup', 'nav-funding', 'nav-operations', 'nav-payroll'];
-
   const [initialSubmitted, setInitialSubmitted] = useState(null);
   const [showWarning, setShowWarning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   // =============================================================================
   // Helper Functions
@@ -836,7 +846,7 @@ function Entryitems() {
   // Delete a fixed expense
   const handleDeleteFixedExpense = async (index) => {
     try {
-      const response = await authenticatedRequest(`/funding/delete-fixed-expense/${projectId}`, 'DELETE', { index });
+      const response = await authenticatedRequest(`/funding/delete-fixed-expense/${projectId}?index=${index}`, 'DELETE');
       setFixedExpenses(response.data.fixed_expenses);
     } catch (err) {
       setError('Failed to delete fixed expense. Please try again.');
@@ -847,11 +857,11 @@ function Entryitems() {
   // Delete a capital cost
   const handleDeleteCapitalCost = async (index) => {
     try {
-      const response = await authenticatedRequest(`/funding/delete-capital-cost/${projectId}`, 'DELETE', { index });
+      const response = await authenticatedRequest(`/funding/delete-capital-cost/${projectId}?index=${index}`, 'DELETE');
       setCapitalCosts(response.data.capital_costs);
     } catch (err) {
-      setError('Failed to delete fixed expense. Please try again.');
-      console.error('Error deleting fixed expense:', err);
+      setError('Failed to delete capital cost. Please try again.');
+      console.error('Error deleting capital cost:', err);
     }
   };
 
@@ -943,9 +953,8 @@ function Entryitems() {
   const handleDeleteEmployeePayroll = async (index) => {
     try {
       const response = await authenticatedRequest(
-        `/payroll/delete-employee-payroll/${projectId}`,
-        'DELETE',
-        { index }
+        `/payroll/delete-employee-payroll/${projectId}?index=${index}`,
+        'DELETE'
       );
       setEmployeePayrolls(response.data.employee_payrolls);
     } catch (err) {
@@ -1109,7 +1118,7 @@ function Entryitems() {
       return;
     }
   
-    setIsLoading(true);
+    setIsSubmitting(true);
     try {
       if (!projectId) {
         throw new Error('Project ID is not available. Please try again later.');
@@ -1146,7 +1155,7 @@ function Entryitems() {
         setShowError(false);
       }, 5000);
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
   
@@ -1340,7 +1349,6 @@ function Entryitems() {
         throw new Error(`Recalculations failed for ${errors.length} endpoints. Check logs for details.`);
       }
   
-      console.log('All recalculations completed successfully');
     } catch (error) {
       console.error('Error during recalculations:', error);
       throw error;
@@ -1364,7 +1372,7 @@ function Entryitems() {
   // Confirms the user's decision to clear all data from all tabs.
   const handleWarningConfirm = async () => {
     setShowWarning(false);
-
+    setIsSubmitting(true);
     try {
       await Promise.all([
         clearDataForSection(setStartupCosts, 'startup_costs', 'startup-cost'),
@@ -1402,6 +1410,8 @@ function Entryitems() {
     } catch (error) {
       console.error('Error in handleWarningConfirm:', error);
       setError('Failed to clear all data. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1512,7 +1522,7 @@ function Entryitems() {
           <div className="warning-content">
             <p>Are you sure you want to permanently delete all data from all tabs?</p>
             <div className="warning-buttons">
-              <button onClick={handleWarningConfirm}>Confirm</button>
+              <button onClick={handleWarningConfirm}  disabled={isSubmitting}>Confirm</button>
               <button onClick={handleWarningCancel}>Cancel</button>
             </div>
           </div>
@@ -1980,10 +1990,10 @@ function Entryitems() {
               </div>
             </div>
             <div className="d-flex justify-content-center mt-3">
-            <button className="submit-btn-last btn mx-2" onClick={handleClearAll}>Clear All</button>
+            <button className="submit-btn-last btn mx-2" onClick={handleClearAll} >Clear All</button>
             {!initialSubmitted && (
-                <button className="submit-btn-last btn mx-2" onClick={handleInitialSubmit} disabled={isLoading}>
-                  {isLoading ? 'Submitting...' : 'Submit All Data'}
+                <button className="submit-btn-last btn mx-2" onClick={handleInitialSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? 'Submitting...' : 'Submit All Data'}
                 </button>
               )}
               {initialSubmitted && (
@@ -2063,6 +2073,7 @@ function Entryitems() {
           </Modal.Footer>
         </Modal>
       </div>
+      {isSubmitting && <LoadingOverlay />}
     </div>
   );
 }

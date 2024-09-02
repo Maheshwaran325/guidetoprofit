@@ -37,9 +37,19 @@ const PayrollController = {
   async deleteEmployeePayroll(req, res) {
     try {
       const { projectId } = req.params;
-      const { index } = req.body;
+      const { index } = req.query;
       const authUserId = req.user.id;
-      const result = await PayrollModel.deleteEmployeePayroll(index, projectId, authUserId);
+      
+      if (index === undefined) {
+        return res.status(400).json({ error: 'Index is required' });
+      }
+      
+      const parsedIndex = parseInt(index, 10);
+      if (isNaN(parsedIndex)) {
+        return res.status(400).json({ error: 'Invalid index' });
+      }
+      
+      const result = await PayrollModel.deleteEmployeePayroll(parsedIndex, projectId, authUserId);
       res.status(200).json({
         message: 'Employee payroll deleted successfully',
         employee_payrolls: result

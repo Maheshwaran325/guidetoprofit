@@ -42,7 +42,7 @@
   /* hero section */
 
   .hero-section {
-    padding: 4rem 1rem;
+    padding: 3rem 1rem;
     /* background-color: #f8f9fa; */
   }
   
@@ -113,6 +113,54 @@
     }
   }
 
+  /* four section starts here */
+  .positioning-statement-container {
+    padding: 10px;
+  }
+  
+  .positioning-statement-line {
+    border: 0;
+    border-top: 2px solid #979797;
+    margin-bottom: 20px;
+  }
+  
+  .positioning-statement-row {
+    gap: 15px; /* Adds space between items */
+  }
+  
+  .positioning-statement-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    color: #333;
+    flex: 1;
+    min-width: 200px;
+    padding-left: 15px;
+    padding-right: 15px;
+    
+  }
+  
+  .positioning-statement-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .positioning-statement-item span {
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  
+  @media (max-width: 768px) {
+    .positioning-statement-item span {
+      font-size: 0.75rem;
+    }
+  
+    .positioning-statement-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
 
   /* second section starts here */
   .overall-section-heading{
@@ -123,7 +171,7 @@
   }
 .second-section-card-one{
     /* background-color: #fdf3eb; */
-    background-color: #b9cefca4;
+    background-color: #d8e2f8a4;
     padding: 50px;
     border-radius: 20px;
     height: 100%;
@@ -131,7 +179,7 @@
 }
 
 .second-section-card-two{
-    background-color: #b9cefca4;
+  background-color: #d8e2f8a4;
     padding: 50px;
     border-radius: 20px;
     height: 100%;
@@ -264,7 +312,7 @@
 
   /* numbers card section */
   .value-card-container {
-    background-color: #f9fafc;
+    background-color: #ffffff;
     border-radius: 10px;
     padding: 40px 50px;
     border: 2px solid #d7d7d799;
@@ -339,8 +387,10 @@
   }
   
   .security-info-icon {
-    width: 60px;
+    width: 70px;
     margin-bottom: 20px;
+    border-radius: 20px;
+
   }
   
   .security-info-header h2 {
@@ -364,8 +414,9 @@
   }
   
   .security-info-item-icon {
-    width: 50px;
+    width: 70px;
     margin-bottom: 20px;
+    border-radius: 20px;
   }
   
   .security-info-item h5 {
@@ -519,3 +570,4 @@
         height: 60px;
     }
 }
+

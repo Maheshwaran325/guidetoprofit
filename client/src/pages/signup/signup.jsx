@@ -44,10 +44,10 @@ function Signup() {
   
     try {
       const { data, error } = await signUp({ email, password, name });
-      
       if (error) {
-        if (error.message === 'User with this email already exists') {
-          setError('An account with this email already exists. Please use a different email or try logging in.');
+        if (error.message.includes('OTP')) {
+          console.error('OTP-related error:', error);
+          setError('There was an issue with the signup process. Please try again later.');
         } else {
           throw error;
         }
@@ -57,7 +57,7 @@ function Signup() {
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
-    } finally {
+    }finally {
       setLoading(false);
     }
   };

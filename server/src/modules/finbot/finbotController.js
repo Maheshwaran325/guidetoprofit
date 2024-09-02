@@ -2,7 +2,7 @@ import { generateChatResponse } from './finbotService.js';
 import ChatModel from './finbotModel.js';
 import UserProfileModel from './userProfileModel.js';
 import logger from '../../../logger.js';
-
+import SubscriptionModel from './SubscriptionModel.js';
 
 export const chatWithFinbot = async (req, res) => {
   try {
@@ -96,5 +96,23 @@ export const clearUserProfile = async (req, res) => {
   } catch (error) {
     logger.error('Error clearing user profile:', error);
     res.status(500).json({ error: 'An error occurred while clearing the user profile.' });
+  }
+};
+
+export const subscribeUser = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required' });
+  }
+
+  try {
+    const subscription = await SubscriptionModel.addSubscription(email);
+    res.status(201).json({ success: true, subscription });
+  } catch (error) {
+    if (error.message.includes('duplicate key')) {
+      return res.status(409).json({ error: 'Email is already subscribed' });
+    }
+    res.status(500).json({ error: 'Failed to subscribe user' });
   }
 };

@@ -1,0 +1,21 @@
+.loading-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Adjust as needed */
+    font-family: Arial, sans-serif;
+  }
+  
+  
+  /* Add styles for the SVG element */
+  .loading-icon svg {
+    margin-bottom: 10px; /* Add some margin to separate the SVG from the text */
+  }
+  
+  /* Add styles for the text element */
+  .loading-icon text {
+    font-size: 20px; /* Match the font size defined in the JSX code */
+    fill: #007BFF; /* Match the color defined in the JSX code */
+  }
+  

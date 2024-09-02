@@ -83,26 +83,26 @@ const OperationsFinanceController = {
     }
   },
   
-  async deleteRevenueForecast(req, res) {
-    try {
-      const { projectId } = req.params;
-      const { forecastId } = req.body;
+ async deleteRevenueForecast(req, res) {
+  try {
+    const { projectId } = req.params;
+    const { forecastId } = req.query;
 
-      if (!forecastId) {
-        return res.status(400).json({ error: 'Forecast ID is required' });
-      }
-
-      const remainingForecasts = await OperationsFinanceModel.deleteRevenueForecast(projectId, forecastId);
-
-      res.status(200).json({
-        message: 'Revenue forecast deleted successfully',
-        revenueForecasts: remainingForecasts
-      });
-    } catch (error) {
-      logger.error('Error deleting revenue forecast:', error);
-      res.status(500).json({ error: error.message });
+    if (!forecastId) {
+      return res.status(400).json({ error: 'Forecast ID is required' });
     }
-  },
+
+    const remainingForecasts = await OperationsFinanceModel.deleteRevenueForecast(projectId, forecastId);
+
+    res.status(200).json({
+      message: 'Revenue forecast deleted successfully',
+      revenueForecasts: remainingForecasts
+    });
+  } catch (error) {
+    logger.error('Error deleting revenue forecast:', error);
+    res.status(500).json({ error: error.message });
+  }
+},
 
   async deleteItem(req, res) {
     try {

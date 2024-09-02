@@ -1,3 +1,4 @@
+// If you see authenticatedRequesutility error you need to change server .env production to development
 import axios from 'axios';
 import { supabase } from '../auth/supabaseClient';
 
@@ -20,7 +21,6 @@ export const authenticatedRequest = async (endpoint, method = 'GET', data = null
     }
 
     const url = `${baseUrl}${endpoint}`;
-    console.log('Requesting URL:', url); // Add this line for debugging
 
     const config = {
       method,
@@ -29,10 +29,13 @@ export const authenticatedRequest = async (endpoint, method = 'GET', data = null
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      data: method !== 'GET' ? data : undefined,
       withCredentials: true,
     };
 
+    // Only include data for POST, PUT, and PATCH requests
+    if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && data !== null) {
+      config.data = data;
+    }
     const response = await axios(config);
    
     resetSessionTimeout();

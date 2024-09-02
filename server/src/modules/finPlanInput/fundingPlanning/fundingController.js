@@ -105,9 +105,19 @@ const FundingController = {
   async deleteFixedExpense(req, res) {
     try {
       const { projectId } = req.params;
-      const { index } = req.body;
+      const { index } = req.query;
       const authUserId = req.user.id;
-      const result = await FundingModel.deleteFixedExpense(index, projectId, authUserId);
+  
+      if (index === undefined) {
+        return res.status(400).json({ error: 'Index is required' });
+      }
+  
+      const parsedIndex = parseInt(index, 10);
+      if (isNaN(parsedIndex)) {
+        return res.status(400).json({ error: 'Invalid index' });
+      }
+  
+      const result = await FundingModel.deleteFixedExpense(parsedIndex, projectId, authUserId);
       res.status(200).json({
         message: 'Fixed expense deleted successfully',
         fixed_expenses: result
@@ -117,13 +127,23 @@ const FundingController = {
       res.status(500).json({ error: error.message });
     }
   },
-
+  
   async deleteCapitalCost(req, res) {
     try {
       const { projectId } = req.params;
-      const { index } = req.body;
+      const { index } = req.query;
       const authUserId = req.user.id;
-      const result = await FundingModel.deleteCapitalCost(index, projectId, authUserId);
+  
+      if (index === undefined) {
+        return res.status(400).json({ error: 'Index is required' });
+      }
+  
+      const parsedIndex = parseInt(index, 10);
+      if (isNaN(parsedIndex)) {
+        return res.status(400).json({ error: 'Invalid index' });
+      }
+  
+      const result = await FundingModel.deleteCapitalCost(parsedIndex, projectId, authUserId);
       res.status(200).json({
         message: 'Capital cost deleted successfully',
         capital_costs: result
@@ -133,7 +153,7 @@ const FundingController = {
       res.status(500).json({ error: error.message });
     }
   },
-
+  
   async deleteItem(req, res) {
     try {
       const { itemId, projectId } = req.params;

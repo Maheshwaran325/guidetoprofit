@@ -11,33 +11,28 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [sessionTimeout, setSessionTimeout] = useState(null);
   
-  const checkExistingUser = async (email) => {
-    const { data, error } = await supabase.auth.signInWithOtp({
-      email: email,
-      options: {
-        shouldCreateUser: false,
-      }
-    });
+  // const checkExistingUser = async (email) => {
+  //   const { data, error } = await supabase.auth.signInWithOtp({
+  //     email: email,
+  //     options: {
+  //       shouldCreateUser: false,
+  //     }
+  //   });
   
-    if (error && error.status === 400) {
-      // If the error status is 400, it means the user doesn't exist
-      return false;
-    } else if (error) {
-      // For any other error, we throw it to be handled by the caller
-      throw error;
-    }
+  //   if (error && error.status === 400) {
+  //     // If the error status is 400, it means the user doesn't exist
+  //     return false;
+  //   } else if (error) {
+  //     // For any other error, we throw it to be handled by the caller
+  //     throw error;
+  //   }
   
-    // If we get here, it means the user exists
-    return true;
-  };
+  //   // If we get here, it means the user exists
+  //   return true;
+  // };
 
   const signUp = async (data) => {
     try {
-      const userExists = await checkExistingUser(data.email);
-      if (userExists) {
-        throw new Error('User with this email already exists');
-      }
-
       const { data: signUpData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -45,11 +40,15 @@ export function AuthProvider({ children }) {
           data: { full_name: data.name }
         }
       });
-
-      if (error) throw error;
-
+  
+      if (error) {
+        console.error('Supabase signUp error:', error);
+        throw error;
+      }
+  
       return { data: signUpData, error: null };
     } catch (error) {
+      console.error('SignUp function error:', error);
       return { data: null, error };
     }
   };

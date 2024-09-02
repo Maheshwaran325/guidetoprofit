@@ -33,10 +33,10 @@ app.get('/', (req, res) => {
   res.send('Server is running');
 });
 
-// Add a test route
-app.get('/test', (req, res) => {
-  res.json({ message: 'Test route is working' });
-});
+// // Add a test route
+// app.get('/test', (req, res) => {
+//   res.json({ message: 'Test route is working' });
+// });
 
 // Global error handler
 app.use((err, req, res, next) => {
