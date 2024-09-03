@@ -6,6 +6,7 @@ import logo_light from '../../components/assets/images/guide2solve light.png';
 // import aboutimg from '../../components/assets/images/aboutimg.png';
 // import Dropdown from 'react-bootstrap/Dropdown';
 import { Link } from 'react-router-dom';
+
 // icons imported as image
 import Icon1 from "../../components/assets/images/icon-1.png";
 import Icon2 from "../../components/assets/images/icon-2.png";
@@ -26,42 +27,6 @@ import LOCK4 from "../../components/assets/images/icons set/lock-icon4.png";
 
 const Home = () => {
   const [isOpen, setIsOpen] = useState(false);
-  // const [email, setEmail] = useState('');
-  // const [, setError] = useState('');
-
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  
-  //   if (!email) {
-  //     setError('Please enter your email.');
-  //     return;
-  //   }
-  
-  //   try {
-  //     const response = await fetch('/api/subscribe', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ email }),
-  //     });
-  
-  //     const result = await response.json();
-  
-  //     if (response.ok) {
-  //       alert('Thank you for subscribing!');
-  //       setEmail(''); // Clear the email field
-  //     } else {
-  //       setError(result.error || 'Subscription failed');
-  //     }
-  //   } catch (err) {
-  //     console.error('Error during subscription:', err);
-  //     setError('Subscription failed. Please try again later.');
-  //   }
-  // };
-  
-  
 
   return (
     <div className='total-page-index'>
@@ -125,7 +90,7 @@ const Home = () => {
       {/* home section starts here */}
        <div className="hero-section container-fluid" >
       <div className="row justify-content-center text-center">
-        <div className="col-md-8">
+        <div className="col-md-8" >
           <span className="leader-badge">Beta V-0.1</span>
           <h1 className="hero-title">
           Your Startup with Precision Financial <br/>Forecasting <span  style={{color:"#F16635"}}>Using AI</span>
@@ -133,12 +98,12 @@ const Home = () => {
           <p className="hero-subtitle">
           From us - Gain Actionable insights, Plan for Financial Growth, and Get High accuracy in Fund Forecasting 
           </p>
-          <div className="cta-buttons">
+          {/* <div className="cta-buttons "> */}
           <Link to="/login"><button className="btn btn-primary btn-lg me-3">
             Get started
             </button> </Link>
             {/* <button className="btn btn-outline-primary btn-lg">Get started</button> */}
-          </div>
+          {/* </div> */}
           {/* <p className="trial-info">Free Demo. Cancel anytime. No hidden charges.</p> */}
         </div>
       </div>
@@ -181,7 +146,7 @@ const Home = () => {
             <h6 className="nn-subtitle">About us</h6>
             <h2 className="nn-title">Why startups needs us?</h2>
             </div>
-        <div className='col-6'>
+        <div className='col-md-6' style={{marginTop:"20px"}}>
         <div className='second-section-card-one'>
     <div className='second-section-subtitle'>Turn messy numbers into money-making insights
     </div>
@@ -194,7 +159,7 @@ const Home = () => {
     </div>
         </div>
 
-        <div className='col-6'>
+        <div className='col-md-6' style={{marginTop:"20px"}}>
         <div className='second-section-card-two'>
     <div className='second-section-subtitle'>Your Business, Empowered by Financial Insights
     </div>
@@ -219,7 +184,7 @@ const Home = () => {
       <div className="row justify-content-center">
         <div className="col-lg-10 col-md-12 value-card-container">
           <div className="row text-center">
-          <div className="col-6 value-card-header" style={{textAlign:"left"}}>
+          <div className="col-md-6 value-card-header" style={{textAlign:"left"}}>
               <p className="value-card-subtitle" style={{textTransform:"uppercase", fontSize:"13px"}}>Value You Can Measure</p>
               <h2 className="value-card-title-large">Achieve financial clarity and confidence faster than ever before.
               </h2>
@@ -428,28 +393,22 @@ const Home = () => {
       </div>
       <div className="col-md-6 ">
         <h6>FINANCIAL INSIGHTS TAILORED FOR YOUR BUSINESS STRAIGHT TO YOUR INBOX</h6><br/>
-        {/* <form className="mt-3" onSubmit={handleSubmit}> */}
-        <form>
-      <div className="form-group">
-        <input
-          type="email"
-          className="form-control bg-dark text-white border-secondary"
-          placeholder="Your Email"
-          style={{ borderRadius: '25px', width: '360px' }}
-          // value={email}
-          // onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <button
-          className="btn btn-primary"
-          type="submit"
-          style={{ borderRadius: '25px', marginLeft: '10px', height: '40px' }}
-        >
-          Subscribe Now
-        </button>
-      </div>
-      {/* {error && <p style={{color: 'red'}}>{error}</p>} */}
-    </form>
+        <form className="mt-3">
+          <div className="form-group">
+            <input
+              type="email"
+              className="form-control bg-dark text-white border-secondary"
+              placeholder="Your Email"
+              style={{ borderRadius: '25px', width:"60%"}}
+            />
+            <button
+              className="btn btn-primary"
+              type="submit" style={{borderRadius: '25px',marginLeft:"10px", height:"40px"}}
+            >
+              Subscribe Now
+            </button>
+          </div>
+        </form>
       </div>
     </div>
     <hr className="my-4" />
