@@ -62,4 +62,13 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
   });
+
+  app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      res.status(200).send();
+    } else {
+      next();
+    }
+  });
+  
 export default app;
