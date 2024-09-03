@@ -1,22 +1,3 @@
-// import cors from 'cors';
-// import dotenv from 'dotenv';
-
-// dotenv.config();
-
-// const corsOptions = {
-//   origin: [
-//     process.env.FRONTEND_URL,
-//     'https://cashcompassclient-maheshwaran325s-projects.vercel.app',
-//     'http://localhost:3000'
-//   ],
-//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-//   credentials: true,
-//   optionsSuccessStatus: 200
-// };
-
-// export default corsOptions;
-
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -25,6 +6,7 @@ const corsOptions = {
   origin: (origin, callback) => {
     const allowedOrigins = [
       process.env.FRONTEND_URL,
+      'https://www.guide2profit.in',
       'https://cashcompassclient-maheshwaran325s-projects.vercel.app',
       'http://localhost:3000'
     ];

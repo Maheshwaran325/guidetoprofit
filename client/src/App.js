@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Modal from 'react-modal';
 import { ProjectProvider } from './ProjectContext';
 import { AuthProvider } from './auth/AuthContext';
+import { SpeedInsights } from '@vercel/speed-insights';
+import { Analytics } from "@vercel/analytics/react"
 import PrivateRoute from './auth/PrivateRoute';
 import Login from './pages/login/login';
 import Signup from './pages/signup/signup';
@@ -30,6 +32,8 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+          <SpeedInsights />
+          <Analytics/>
           <Route path="/" element={<><Home /><BackToTopButton /></>} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
