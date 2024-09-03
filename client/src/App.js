@@ -1,10 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import { useEffect } from 'react';
 import Modal from 'react-modal';
 import { ProjectProvider } from './ProjectContext';
 import { AuthProvider } from './auth/AuthContext';
-// import { injectSpeedInsights } from '@vercel/speed-insights';
-import { Analytics } from "@vercel/analytics/react"
 import PrivateRoute from './auth/PrivateRoute';
 import Login from './pages/login/login';
 import Signup from './pages/signup/signup';
@@ -27,18 +24,12 @@ import './App.css';
 Modal.setAppElement('#root');
 
 function App() {
-
-  // useEffect(() => {
-  //   injectSpeedInsights();
-  // }, []);
-
   return (
     <AuthProvider>
        <ProjectProvider>       
       <Router>
         <div className="App">
           <Routes>
-          <Analytics/>
           <Route path="/" element={<><Home /><BackToTopButton /></>} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
