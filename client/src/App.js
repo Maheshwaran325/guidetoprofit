@@ -19,6 +19,7 @@ import Calculator from '../src/components/calculator/calculator.jsx';
 import BackToTopButton from '../src/components/backtotop/backtotop.jsx';
 import Glossary from './pages/glossary/glossary.jsx';
 import Home from './pages/home/home.jsx'
+import { Analytics } from "@vercel/analytics/react"
 import './App.css';
 
 Modal.setAppElement('#root');
@@ -27,6 +28,7 @@ function App() {
   return (
     <AuthProvider>
        <ProjectProvider>       
+       <Analytics /> 
       <Router>
         <div className="App">
           <Routes>
