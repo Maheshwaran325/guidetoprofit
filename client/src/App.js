@@ -18,6 +18,7 @@ import Finbot from '../src/components/finbot/finbot';
 import Calculator from '../src/components/calculator/calculator.jsx';
 import BackToTopButton from '../src/components/backtotop/backtotop.jsx';
 import Glossary from './pages/glossary/glossary.jsx';
+import Fundingadv from './pages/fundingadvisor/fundingadvisor.jsx';
 import Home from './pages/home/home.jsx'
 import { Analytics } from "@vercel/analytics/react"
 import './App.css';
@@ -45,6 +46,7 @@ function App() {
             <Route path="/breakevenanalysis" element={<PrivateRoute><BreakEvenAnalysis /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
             <Route path="/funding" element={<PrivateRoute><Funding /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
             <Route path="/glossary" element={<PrivateRoute><Glossary /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
+            <Route path="/fundingadvisor" element={<PrivateRoute><Fundingadv /><Finbot /><Calculator/><BackToTopButton/></PrivateRoute>} />
           </Routes>
         </div>
       </Router>
