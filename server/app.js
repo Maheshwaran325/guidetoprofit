@@ -17,6 +17,7 @@ import authRoutes from './src/modules/auth/authRoutes.js';
 import financialDashboardRoutes  from './src/modules/dashboard/dashboardRoutes.js';
 import finbotRoutes from './src/modules/finbot/finbotRoutes.js';
 import projectRoutes from './src/utils/initialsubmitRoutes.js';
+import fundingAdvisorRoutes  from './src/modules/fundingAdvisor/fundingAdvisorRoutes.js';
 import corsOptions from './corsConfig.js';
 
 dotenv.config();
@@ -49,6 +50,9 @@ app.use('/payroll', payrollRoutes);
 
  // Chatbot Routes
  app.use('/api', finbotRoutes); 
+
+ // Chatbot Routes
+app.use('/api/funding-advisor', fundingAdvisorRoutes);
  
  app.get('/', (req, res) => {
   res.send('Server is running');

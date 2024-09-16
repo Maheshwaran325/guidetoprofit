@@ -11,25 +11,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [sessionTimeout, setSessionTimeout] = useState(null);
   
-  // const checkExistingUser = async (email) => {
-  //   const { data, error } = await supabase.auth.signInWithOtp({
-  //     email: email,
-  //     options: {
-  //       shouldCreateUser: false,
-  //     }
-  //   });
-  
-  //   if (error && error.status === 400) {
-  //     // If the error status is 400, it means the user doesn't exist
-  //     return false;
-  //   } else if (error) {
-  //     // For any other error, we throw it to be handled by the caller
-  //     throw error;
-  //   }
-  
-  //   // If we get here, it means the user exists
-  //   return true;
-  // };
+
 
   const signUp = async (data) => {
     try {
@@ -37,7 +19,10 @@ export function AuthProvider({ children }) {
         email: data.email,
         password: data.password,
         options: {
-          data: { full_name: data.name }
+          data: { 
+            full_name: data.name,
+            business_vertical: data.businessVertical
+          }
         }
       });
   
@@ -52,7 +37,6 @@ export function AuthProvider({ children }) {
       return { data: null, error };
     }
   };
-
 
  
     const signIn = async (data) => {
@@ -117,6 +101,7 @@ export function AuthProvider({ children }) {
     signOut,
     user,
     userName: user?.user_metadata?.full_name || user?.full_name || 'User',
+    businessVertical: user?.user_metadata?.business_vertical || '',
   };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;

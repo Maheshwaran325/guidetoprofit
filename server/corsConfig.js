@@ -8,6 +8,7 @@ const corsOptions = {
       process.env.FRONTEND_URL,
       'https://www.guide2profit.in',
       'https://cashcompassclient-maheshwaran325s-projects.vercel.app',
+      'https://cashcompassclient-git-test-maheshwaran325s-projects.vercel.app/',
       'http://localhost:3000'
     ];
     if (!origin || allowedOrigins.includes(origin)) {

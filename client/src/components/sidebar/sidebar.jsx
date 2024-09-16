@@ -22,8 +22,10 @@ function Sidebar({ setPageTitle }) {
         <Link to="/plforecast" onClick={() => setPageTitle('Forecast P&L')}>Forecast P&L</Link>
         <Link to="/breakevenanalysis" onClick={() => setPageTitle('Break-Even Analysis')}>Break-Even Analysis</Link>
         <Link to="/funding" onClick={() => setPageTitle('Funding')}>Funding</Link>
+        <Link to="/fundingadvisor" onClick={() => setPageTitle('Funding Advisor')}>Funding Advisor</Link>
+
         <hr/>
-        <Link to="/blogs" onClick={() => setPageTitle('Blogs')}>Blogs</Link>
+        {/* <Link to="/blogs" onClick={() => setPageTitle('Blogs')}>Blogs</Link> */}
         <Link to="/glossary" onClick={() => setPageTitle('Glossary')}>Glossary</Link>
       </div>
     </div>
